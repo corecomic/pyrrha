@@ -54,12 +54,12 @@ Page {
 
                 Column {
                     Label {
-                        text: qsTr('Pyrrha ') // + py.uiversion
+                        text: 'Pyrrha ' // + py.uiversion
                         color: Theme.highlightColor
                     }
 
                     Label {
-                        text: 'http://pithos.org/'
+                        text: 'https://github.com/corecomic/pyrrha'
                         font.pixelSize: Theme.fontSizeSmall
                         color: Theme.secondaryColor
                     }
@@ -69,17 +69,24 @@ Page {
                     width: parent.width
                     wrapMode: Text.WordWrap
                     text: [
-                        '© 2014 Core Comic',
-                        'License: GPLv3 or later',
-                        'Website: http://pithos.org/',
+                        'Copyright © 2014 Core Comic',
+                        'Licensed under GNU GPLv3+',
                         '',
-                        'Sailfish OS artwork by Stephan Beyerle',
+                        'Pandora Python library by Kevin Mehall and Christopher Eby from Pithos (http://pithos.github.io)',
                         '',
-                        'Pyrrha ' + '0.1',
-                        'Pandora Python library by Kevin Mehall and Christopher Eby',
-                        //'PyOtherSide ' + py.pluginVersion(),
-                        //'Python ' + py.pythonVersion()
+                        'Pyrrha ' + py.version,
+                        'PyOtherSide ' + py.pluginVersion(),
+                        'Python ' + py.pythonVersion()
                     ].join('\n')
+                }
+
+                Label {
+                    anchors.topMargin: Theme.paddingLarge
+                    width: parent.width
+                    wrapMode: Text.WordWrap
+                    font.pixelSize: Theme.fontSizeSmall
+                    color: Theme.secondaryColor
+                    text: 'Pyrrha is not affiliated with or endorsed by Pandora Media, Inc.'
                 }
             }
         }

@@ -22,7 +22,7 @@ Python wrapper file for pithos-mobile, using PyOtherSide
 
 """
 
-__version__ = "0.1"
+__version__ = "0.1.0"
 
 
 import sys
@@ -70,7 +70,6 @@ class PithosMobile(object):
         self.current_station = None
         self.current_song = None
         self.current_song_index = None
-        self.start_new_playlist = True
 
         self.waiting_for_playlist = False
 
@@ -89,6 +88,7 @@ class PithosMobile(object):
 
 
     def init(self):
+        pyotherside.send('hello', __version__)
         logging.info("PithosMobile initialized...")
 
     def read_configuration(self):

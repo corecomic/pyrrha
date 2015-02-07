@@ -27,13 +27,17 @@ Python {
     property string progname: 'pyrrha'
     property bool ready: false
     property bool refreshing: false
+
     property string version
 
     signal connected()
 
     Component.onCompleted: {
         // Configure Signal Handlers for PyOtherSide
-        setHandler('connected', connected)
+        setHandler('connected', connected);
+        setHandler('hello', function(version) {
+            py.version = version;
+        });
 
         // Add path for Python module
         addImportPath(Qt.resolvedUrl("../pyrrha"));
@@ -53,7 +57,7 @@ Python {
     }
 
     onReceived: {
-        console.log('unhandled message: ' + data);
+        console.log('Unhandled message: ' + data);
     }
 
     onError: {

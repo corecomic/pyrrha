@@ -25,4 +25,8 @@ Item {
     id: pandoraSession
 
     property bool isConnected: false
+
+    function connect() {
+        py.call('pyrrha.pandora_connect', [], function(result) {});
+    }
 }

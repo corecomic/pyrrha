@@ -25,7 +25,7 @@ DockedPanel {
     id: quickControls
 
     width: parent.width
-    height: 150
+    height: 180
 
     contentHeight: height
     flickableDirection: Flickable.VerticalFlick
@@ -60,7 +60,8 @@ DockedPanel {
                 id: cover
                 width: quickControls.height
                 height: width
-                source: player.song ? player.song.artURL : "image://theme/icon-l-music"
+                fillMode: player.song ? Image.PreserveAspectFit : Image.Pad
+                source: player.song ? player.song.artURL : "image://theme/icon-m-music"
             }
 
             Column {
@@ -82,7 +83,6 @@ DockedPanel {
                     color: Theme.secondaryColor
                     text: player.song ? player.song.artist : ""
                 }
-
                 Row {
                     id: controls
                     width: parent.width
@@ -91,14 +91,15 @@ DockedPanel {
                     IconButton {
                         width: controls.itemWidth
                         anchors.verticalCenter: parent.verticalCenter
-                        icon.source: "image://theme/icon-m-up"
+                        icon.source: "image://theme/icon-s-like"
                         onClicked: player.loveSong()
                     }
 
                     IconButton {
                         width: controls.itemWidth
                         anchors.verticalCenter: parent.verticalCenter
-                        icon.source: "image://theme/icon-m-down"
+                        icon.source: "image://theme/icon-s-like"
+                        icon.rotation: 180
                         onClicked: player.banSong()
                     }
 
@@ -116,6 +117,15 @@ DockedPanel {
                         icon.source: "image://theme/icon-m-next-song"
                         onClicked: player.playNext()
                     }
+                }
+                ProgressBar {
+                    id: quickProgress
+                    width: parent.width
+                    height: quickControls.height/3
+                    maximumValue: player.duration
+                    minimumValue: 0
+                    indeterminate: player.bufferProgress !== 1
+                    value: player.position
                 }
             }
         }

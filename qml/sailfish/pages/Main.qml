@@ -22,23 +22,30 @@ import Sailfish.Silica 1.0
 
 
 Page {
-    id: page
+    id: mainPage
+
+    property bool loading: true
 
     Component.onCompleted: {
-        py.call('pyrrha.pandora_connect', [], function(result) {})
-        py.call('pyrrha.get_station_list', [], function(result) {
-            // Load the received data into the list model
-            for (var i=0; i<result.length; i++) {
-                stationListModel.append(result[i]);
-            }
-        });
+        pandoraSession.connect()
+        loadStationList()
     }
 
     function createPlayerPage() {
         console.log("Player Created..!")
         if (player.songID != 0) {
-
         }
+    }
+
+    function loadStationList    () {
+        stationListModel.clear();
+        py.call('pyrrha.get_station_list', [], function(result) {
+            // Load the received data into the list model
+            for (var i=0; i<result.length; i++) {
+                stationListModel.append(result[i]);
+            }
+            loading = false;
+        });
     }
 
     // To enable PullDownMenu, place our content in a SilicaFlickable
@@ -60,7 +67,12 @@ Page {
             }
             MenuItem {
                 text: qsTr("Refresh")
-                onClicked: page.forceActiveFocus()
+                onClicked: {
+                    loading = true
+                    if (!pandoraSession.isConnected)
+                        pandoraSession.connect()
+                    loadStationList()
+                }
             }
         }
 
@@ -123,7 +135,7 @@ Page {
         BusyIndicator {
             size: BusyIndicatorSize.Medium
             anchors.centerIn: parent
-            visible: !py.ready
+            visible: !py.ready || loading
             running: visible
         }
     }

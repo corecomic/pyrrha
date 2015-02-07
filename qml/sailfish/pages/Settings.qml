@@ -27,11 +27,15 @@ Dialog {
 
     onAccepted: {
         py.call('pyrrha.save_configuration', [ {'account': {'email': emailField.text,
-                                                    'password': passwordField.text,
-                                                    'pandora_one': subscriberSwitch.checked},
-                                              'audio': {'quality': audioQuality.currentItem.text.toLowerCase() + 'Quality'},
-                                              'proxy': {'global_url': proxyURL.text,
-                                                    'control_url': controlProxyURL.text}} ])
+                                                      'password': passwordField.text,
+                                                      'pandora_one': subscriberSwitch.checked},
+                                                  'audio': {'quality': audioQuality.currentItem.text.toLowerCase() + 'Quality'},
+                                                  'proxy': {'global_url': proxyURL.text,
+                                                      'control_url': controlProxyURL.text}} ])
+        if (!pandoraSession.isConnected) {
+            pandoraSession.connect()
+            mainPage.loadStationList()
+        }
     }
 
     Component.onCompleted: {
@@ -40,7 +44,7 @@ Dialog {
             passwordField.text  = result['account']['password']
             subscriberSwitch.checked = result['account']['pandora_one'] === 'True'
             audioQuality.currentIndex = result['audio']['quality'] === 'lowQuality' ? 0
-                                                                             : result['audio']['quality'] === 'mediumQuality' ? 1 : 2
+                                                                                    : result['audio']['quality'] === 'mediumQuality' ? 1 : 2
             proxyURL.text = result['proxy']['global_url']
             controlProxyURL.text = result['proxy']['control_url']
         })
@@ -155,8 +159,6 @@ Dialog {
 
                 label: qsTr("Control Proxy URL")
             }
-
-
         }
     }
 }

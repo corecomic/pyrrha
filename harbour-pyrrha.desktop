@@ -3,8 +3,5 @@ Type=Application
 X-Nemo-Application-Type=silica-qt5
 Icon=harbour-pyrrha
 Exec=harbour-pyrrha
-Name=harbour-pyrrha
-# translation example:
-# your app name in German locale (de)
-Name[de]=harbour-pyrrha
+Name=Pyrrha
 

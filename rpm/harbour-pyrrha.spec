@@ -17,7 +17,7 @@ Version:    0.1
 Release:    1
 Group:      Qt/Qt
 License:    LICENSE
-URL:        http://example.org/
+URL:        https://github.com/corecomic/pyrrha
 Source0:    %{name}-%{version}.tar.bz2
 Source100:  harbour-pyrrha.yaml
 Requires:   sailfishsilica-qt5 >= 0.10.9
@@ -29,7 +29,7 @@ BuildRequires:  pkgconfig(Qt5Quick)
 BuildRequires:  desktop-file-utils
 
 %description
-Short description of my SailfishOS Application
+Pyrrha is a native Pandora Radio client for Sailfish.
 
 
 %prep
