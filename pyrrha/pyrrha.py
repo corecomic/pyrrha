@@ -231,35 +231,18 @@ class PithosMobile(object):
         #if not reconnecting:
         #    self.get_playlist(start = True)
 
-    def get_playlist(self, start = False):
-        self.start_new_playlist = self.start_new_playlist or start
+    def get_playlist(self):
         if self.waiting_for_playlist: return
-
-#            def art_callback(t):
-#                pixbuf, song, index = t
-#                if index<len(self.songs_model) and self.songs_model[index][0] is song: # in case the playlist has been reset
-#                    logging.info("Downloaded album art for %i"%song.index)
-#                    song.art_pixbuf = pixbuf
-#                    self.songs_model[index][3]=pixbuf
-#                    self.update_song_row(song)
 
         self.waiting_for_playlist = True
         try:
             songs = self.current_station.get_playlist()
 
-            start_index = len(self.songs_model)
             for i in songs:
                 i.index = len(self.songs_model)
                 self.songs_model.append((i, '', '', ''))
 
-            if self.start_new_playlist:
-                pass
-                #self.start_song(start_index)
-
             self.waiting_for_playlist = False
-            self.start_new_playlist = False
-
-            return start_index
 
         except Exception as e:
             logging.error(e)

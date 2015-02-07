@@ -56,9 +56,7 @@ Audio {
     function getSongList(doStart) {
         doStart = typeof doStart !== 'undefined' ? doStart : false;
 
-        py.call('pyrrha.get_playlist', [doStart], function(result) {
-            songIndex = result
-
+        py.call('pyrrha.get_playlist', [], function() {
             py.call('pyrrha.get_song_list', [], function(result) {
                 songList = result;
                 song = songList[songIndex];
@@ -71,8 +69,8 @@ Audio {
     }
 
     function playbackSong(songUrl) {
-        if (songID === songUrl) {
-            // If the episode is already loaded, just start playing
+        if (player.source === songUrl) {
+            // If the song is already loaded, just start playing
             play();
             return;
         }

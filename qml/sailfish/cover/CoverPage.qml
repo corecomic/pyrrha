@@ -21,22 +21,90 @@ import QtQuick 2.0
 import Sailfish.Silica 1.0
 
 CoverBackground {
+    Image {
+        source: player.song ? player.song.artURL : 'pyrrha_cover.png'
+        anchors.horizontalCenter: parent.horizontalCenter
+        width: parent.width
+        height: parent.height
+        fillMode: Image.PreserveAspectCrop
+        clip: true
+        opacity: 0.5
+    }
+
     Label {
-        id: label
-        anchors.centerIn: parent
-        text: qsTr("My Cover")
+        id: timeLabel
+        anchors {
+            top: parent.top
+            horizontalCenter: parent.horizontalCenter
+            margins: Theme.paddingSmall
+        }
+        color: Theme.highlightColor
+        font.pixelSize: Theme.fontSizeHuge
+        text: player.song ? formatDuration(player.position/1000) : ""
+    }
+
+    Label {
+        id: trackLabel
+        anchors {
+            top: timeLabel.bottom
+            left: parent.left
+            right: parent.right
+            margins: Theme.paddingMedium
+        }
+        maximumLineCount: 3
+        wrapMode: Text.Wrap
+        truncationMode: TruncationMode.Elide
+        color: Theme.primaryColor
+        font.pixelSize: Theme.fontSizeLarge
+        text: player.song ? player.song.name : ""
+    }
+
+
+
+    CoverActionList {
+        id: coverActionPlaying
+        enabled: pandoraSession.isConnected && player.isPlaying
+
+        CoverAction {
+            iconSource: player.isPlaying ? "image://theme/icon-cover-pause"
+                                         : "image://theme/icon-cover-play"
+            onTriggered: player.togglePause()
+        }
+
+        CoverAction {
+            iconSource: "image://theme/icon-cover-next-song"
+            onTriggered: player.playNext()
+        }
+
+
     }
 
     CoverActionList {
-        id: coverAction
+        id: coverActionIdle
+        enabled: pandoraSession.isConnected && !player.isPlaying
 
         CoverAction {
-            iconSource: "image://theme/icon-cover-next"
+            iconSource: "image://theme/icon-cover-shuffle"
+            onTriggered: {
+                py.call('pyrrha.station_changed', ["QuickMix"])
+                player.getSongList(true)
+            }
+        }
+    }
+
+    function formatDuration(duration) {
+        if (duration !== 0 && !duration) {
+            return ''
         }
 
-        CoverAction {
-            iconSource: "image://theme/icon-cover-pause"
-        }
+        var h = parseInt(duration / 3600) % 24
+        var m = parseInt(duration / 60) % 60
+        var s = parseInt(duration % 60)
+
+        var hh = h > 0 ? (h < 10 ? '0' + h : h) + ':' : ''
+        var ms = (m < 10 ? '0' + m : m) + ':' + (s < 10 ? '0' + s : s)
+
+        return ms
     }
 }
 
