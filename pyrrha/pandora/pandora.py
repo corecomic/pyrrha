@@ -125,10 +125,10 @@ class Pandora(object):
             raise PandoraNetError(str(e))
         except urllib.error.URLError as e:
             logging.error("Network error: %s", e)
-            if e.reason.strerror == 'timed out':
+            if e.reason == 'timed out':
                 raise PandoraTimeout("Network error", submsg="Timeout")
             else:
-                raise PandoraNetError("Network error", submsg=e.reason.strerror)
+                raise PandoraNetError("Network error", submsg=e.reason)
 
         logging.debug(text)
 
