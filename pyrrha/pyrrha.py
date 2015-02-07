@@ -222,7 +222,7 @@ class PithosMobile(object):
 
         if station is self.current_station:
             logging.info('In station_changed: same station...')
-            return
+            return False
 
         self.waiting_for_playlist = False
         if not reconnecting:
@@ -233,6 +233,7 @@ class PithosMobile(object):
         self.current_station = station
         #if not reconnecting:
         #    self.get_playlist(start = True)
+        return True
 
     def get_playlist(self):
         if self.waiting_for_playlist: return

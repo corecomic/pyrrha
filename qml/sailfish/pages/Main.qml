@@ -100,9 +100,12 @@ Page {
             }
 
             onClicked: {
-                py.call('pyrrha.station_changed', [stationListModel.get(index).name])
-                player.songIndex = 0
-                player.getSongList(true)
+                py.call('pyrrha.station_changed', [stationListModel.get(index).name], function(result) {
+                    if (result) {
+                        player.songIndex = 0
+                        player.getSongList(true)
+                    }
+                });
                 if (!quickControls.open)
                     quickControls.open = true
             }
