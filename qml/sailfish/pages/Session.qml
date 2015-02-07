@@ -25,8 +25,16 @@ Item {
     id: pandoraSession
 
     property bool isConnected: false
+    property string connectionError: ""
+    property var settings: undefined
 
     function connect() {
         py.call('pyrrha.pandora_connect', [], function(result) {});
+    }
+
+    function readConfig() {
+        py.call('pyrrha.get_configuration', [], function(result) {
+            settings = result;
+        })
     }
 }

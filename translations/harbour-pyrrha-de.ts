@@ -48,6 +48,10 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Refresh</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Pyrrha</source>
         <translation type="unfinished"></translation>
     </message>
@@ -57,10 +61,6 @@
     </message>
     <message>
         <source>No account configured!</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Refresh</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

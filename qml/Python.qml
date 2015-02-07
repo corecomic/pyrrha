@@ -38,6 +38,12 @@ Python {
         setHandler('hello', function(version) {
             py.version = version;
         });
+        setHandler('config-changed', function() {
+            pandoraSession.readConfig();
+        });
+        setHandler('connection-error', function(error) {
+            pandoraSession.connectionError = error;
+        });
 
         // Add path for Python module
         addImportPath(Qt.resolvedUrl("../pyrrha"));

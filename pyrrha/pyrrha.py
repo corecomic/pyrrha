@@ -89,6 +89,7 @@ class PithosMobile(object):
 
     def init(self):
         pyotherside.send('hello', __version__)
+        pyotherside.send('config-changed')
         logging.info("PithosMobile initialized...")
 
     def read_configuration(self):
@@ -162,17 +163,19 @@ class PithosMobile(object):
 
     def error_callback(self, e):
         if isinstance(e, PandoraAuthTokenInvalid): # and not self.auto_retrying_auth:
-            #self.auto_retrying_auth = True
             logging.info("Automatic reconnect after invalid auth token")
-            #self.pandora_connect("Reconnecting...", retry_cb)
+            self.pandora_connect()
         elif isinstance(e, PandoraAPIVersionError):
             logging.error("From time to time, Pandora makes an API change that breaks Pyrrha.\
                 As an unofficial client, Pyrrha has no prior notice about these changes.")
+            pyotherside.send('connection-error', "Incompatible Pandora API version")
         elif isinstance(e, PandoraError):
             logging.error(e.message)
             logging.error(e.submsg)
+            pyotherside.send('connection-error', str(e.submsg))
         else:
             logging.warn(e.traceback)
+            pyotherside.send('connection-error', str(e))
 
     def pandora_connect(self, callback=None):
         if self.config['account'].get('pandora_one') == 'True':

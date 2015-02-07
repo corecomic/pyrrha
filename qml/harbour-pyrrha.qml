@@ -27,7 +27,7 @@ ApplicationWindow
     id: appWindow
     bottomMargin: quickControls.visibleSize
 
-    initialPage: Component { Main { } }
+    initialPage: Component { Main { id: mainPage } }
     cover: Qt.resolvedUrl("sailfish/cover/CoverPage.qml")
 
     Python { id: py }

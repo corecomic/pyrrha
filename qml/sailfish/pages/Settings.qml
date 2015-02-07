@@ -32,22 +32,18 @@ Dialog {
                                                   'audio': {'quality': audioQuality.currentItem.text.toLowerCase() + 'Quality'},
                                                   'proxy': {'global_url': proxyURL.text,
                                                       'control_url': controlProxyURL.text}} ])
+        pandoraSession.readConfig()
         if (!pandoraSession.isConnected) {
-            pandoraSession.connect()
-            mainPage.loadStationList()
+            mainPage.loading = true;
+            pandoraSession.connect();
+            mainPage.loadStationList();
         }
     }
 
     Component.onCompleted: {
-        py.call('pyrrha.get_configuration', [], function(result) {
-            emailField.text = result['account']['email']
-            passwordField.text  = result['account']['password']
-            subscriberSwitch.checked = result['account']['pandora_one'] === 'True'
-            audioQuality.currentIndex = result['audio']['quality'] === 'lowQuality' ? 0
-                                                                                    : result['audio']['quality'] === 'mediumQuality' ? 1 : 2
-            proxyURL.text = result['proxy']['global_url']
-            controlProxyURL.text = result['proxy']['control_url']
-        })
+        if (!pandoraSession.settings) {
+            pandoraSession.readConfig();
+        }
     }
 
 
@@ -87,6 +83,7 @@ Dialog {
                 EnterKey.onClicked: passwordField.focus = true
 
                 label: qsTr("E-mail")
+                text: pandoraSession.settings['account']['email']
             }
 
             TextField {
@@ -99,11 +96,12 @@ Dialog {
                 EnterKey.onClicked: focus = false
 
                 label: qsTr("Password")
+                text: pandoraSession.settings['account']['password']
             }
 
             TextSwitch {
                 id: subscriberSwitch
-                checked: false
+                checked: pandoraSession.settings['account']['pandora_one'] === 'True'
                 text: qsTr("Pandora One Subscriber")
             }
 
@@ -131,6 +129,8 @@ Dialog {
                     MenuItem { text: "Medium"; }
                     MenuItem { text: "High"; }
                 }
+                currentIndex: pandoraSession.settings['audio']['quality'] === 'lowQuality' ? 0
+                                  : pandoraSession.settings['audio']['quality'] === 'mediumQuality' ? 1 : 2
             }
 
             SectionHeader {
@@ -147,6 +147,7 @@ Dialog {
                 EnterKey.onClicked: controlProxyURL.focus = true
 
                 label: qsTr("Proxy URL")
+                text: pandoraSession.settings['proxy']['global_url']
             }
 
             TextField {
@@ -158,6 +159,7 @@ Dialog {
                 EnterKey.onClicked: focus = false
 
                 label: qsTr("Control Proxy URL")
+                text: pandoraSession.settings['proxy']['control_url']
             }
         }
     }

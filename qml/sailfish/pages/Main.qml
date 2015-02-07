@@ -122,14 +122,13 @@ Page {
 
             enabled: stationListModel.count == 0 && py.ready
             text: qsTr('No stations')
-            hintText: ''
-
-            Component.onCompleted: {
-                py.call('pyrrha.get_configuration', [], function(result) {
-                    if (result['account']['email'] === '')
-                        pagePlaceholder.hintText = qsTr("No account configured!")
-                })
+            hintText: {
+                if (pandoraSession.settings && pandoraSession.settings['account']['email'] === '')
+                    return pagePlaceholder.hintText = qsTr("No account configured!")
+                else
+                    return pandoraSession.connectionError
             }
+            _hintLabel.font.pixelSize: Theme.fontSizeExtraSmall
         }
 
         BusyIndicator {
