@@ -42,7 +42,6 @@ CoverBackground {
         font.pixelSize: Theme.fontSizeHuge
         text: player.song ? formatDuration(player.position/1000) : ""
     }
-
     Label {
         id: trackLabel
         anchors {
@@ -59,29 +58,23 @@ CoverBackground {
         text: player.song ? player.song.name : ""
     }
 
-
-
     CoverActionList {
         id: coverActionPlaying
-        enabled: pandoraSession.isConnected && player.isPlaying
+        enabled: pandoraSession.isConnected && player.song
 
         CoverAction {
             iconSource: player.isPlaying ? "image://theme/icon-cover-pause"
                                          : "image://theme/icon-cover-play"
             onTriggered: player.togglePause()
         }
-
         CoverAction {
             iconSource: "image://theme/icon-cover-next-song"
             onTriggered: player.playNext()
         }
-
-
     }
-
     CoverActionList {
         id: coverActionIdle
-        enabled: pandoraSession.isConnected && !player.isPlaying
+        enabled: pandoraSession.isConnected && !player.song
 
         CoverAction {
             iconSource: "image://theme/icon-cover-shuffle"
