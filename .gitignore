@@ -1,3 +1,5 @@
 *.pro*
 build/
+dist/
 __pycache__
+rpm/*.rpm

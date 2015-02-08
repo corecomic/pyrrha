@@ -1,7 +1,6 @@
 [Desktop Entry]
 Type=Application
 X-Nemo-Application-Type=silica-qt5
-Icon=harbour-pyrrha
-Exec=harbour-pyrrha
 Name=Pyrrha
-
+Icon=harbour-pyrrha
+Exec=sailfish-qml harbour-pyrrha
