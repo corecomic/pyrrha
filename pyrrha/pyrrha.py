@@ -56,7 +56,7 @@ class PithosMobile(object):
         # Initialize Config File for Settings
         self.config = configparser.ConfigParser()
 
-        config_folder = os.path.join(os.environ.get('HOME'), ".config/pyrrha/")
+        config_folder = os.path.join(os.environ.get('HOME'), ".config/harbour-pyrrha/")
         self.config_file = os.path.join(config_folder, "config.ini")
 
         # Create config folder
