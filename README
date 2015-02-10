@@ -1,0 +1,13 @@
+# Pyrrha
+A cute Pandora client.
+
+Pyrrha is a mobile Pandora Radio client written in Python and QML, using PyOtherSide.
+Native UI for:
+ - Sailfish OS 
+ - Harmattan
+ - Ubuntu Touch
+
+
+License: GNU GPLv3+
+
+Pyrrha is not affiliated with or endorsed by Pandora Media, Inc.
