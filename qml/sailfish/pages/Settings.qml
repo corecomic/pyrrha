@@ -32,12 +32,6 @@ Dialog {
                                                   'audio': {'quality': audioQuality.currentItem.text.toLowerCase() + 'Quality'},
                                                   'proxy': {'global_url': proxyURL.text,
                                                       'control_url': controlProxyURL.text}} ])
-        pandoraSession.readConfig()
-        if (!pandoraSession.isConnected) {
-            mainPage.loading = true;
-            pandoraSession.connect();
-            mainPage.loadStationList();
-        }
     }
 
     Component.onCompleted: {

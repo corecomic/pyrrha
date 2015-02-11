@@ -25,6 +25,8 @@ Item {
     id: pandoraSession
 
     property bool isConnected: false
+    property bool isLoading: false
+    property bool haveAccount: false
     property string connectionError: ""
     property var settings: undefined
 
@@ -35,6 +37,15 @@ Item {
     function readConfig() {
         py.call('pyrrha.get_configuration', [], function(result) {
             settings = result;
+            console.log('Configuration Loaded.');
+            if (settings['account']['email'] !== '') {
+                haveAccount = true;
+            }
+
+            if (!isConnected && haveAccount) {
+                isLoading = true;
+                connect();
+            }
         })
     }
 }

@@ -123,6 +123,9 @@ class PithosMobile(object):
         self.config.read_dict(configuration)
         with open(self.config_file,'w') as config_f:
             self.config.write(config_f)
+        self.set_proxy()
+        self.set_audio_quality()
+        pyotherside.send('config-changed')
 
     def get_proxy(self):
         """ Get HTTP proxy, first trying preferences then system proxy """

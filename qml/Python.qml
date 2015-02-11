@@ -43,6 +43,7 @@ Python {
         });
         setHandler('connection-error', function(error) {
             pandoraSession.connectionError = error;
+            pandoraSession.isLoading = false;
         });
 
         // Add path for Python module

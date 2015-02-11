@@ -25,26 +25,25 @@ Page {
     id: mainPage
 
     property bool loading: true
+    property int currentStation: -1
 
     Component.onCompleted: {
-        pandoraSession.connect()
         loadStationList()
     }
 
-    function createPlayerPage() {
-        console.log("Player Created..!")
-        if (player.songID != 0) {
-        }
+    Connections {
+        target: py
+        onConnected: loadStationList();
     }
 
-    function loadStationList    () {
+    function loadStationList() {
         stationListModel.clear();
         py.call('pyrrha.get_station_list', [], function(result) {
             // Load the received data into the list model
             for (var i=0; i<result.length; i++) {
                 stationListModel.append(result[i]);
             }
-            loading = false;
+            pandoraSession.isLoading = false;
         });
     }
 
@@ -68,8 +67,8 @@ Page {
             MenuItem {
                 text: qsTr("Refresh")
                 onClicked: {
-                    loading = true
-                    if (!pandoraSession.isConnected)
+                    pandoraSession.isLoading = true
+                    if (!pandoraSession.isConnected && pandoraSession.haveAccount)
                         pandoraSession.connect()
                     loadStationList()
                 }
@@ -96,11 +95,12 @@ Page {
                     margins: Theme.paddingLarge
                     verticalCenter: parent.verticalCenter
                 }
-                color: highlighted ? Theme.highlightColor : Theme.primaryColor
+                color: highlighted || (index === currentStation) ? Theme.highlightColor : Theme.primaryColor
             }
 
             onClicked: {
-                py.call('pyrrha.station_changed', [stationListModel.get(index).name], function(result) {
+                currentStation = index;
+                py.call('pyrrha.station_changed', [stationListModel.get(currentStation).name], function(result) {
                     if (result) {
                         player.songIndex = 0
                         player.getSongList(true)
@@ -123,11 +123,11 @@ Page {
         ViewPlaceholder {
             id: pagePlaceholder
 
-            enabled: stationListModel.count == 0 && py.ready
+            enabled: stationListModel.count == 0 && py.ready && !pandoraSession.isLoading
             text: qsTr('No stations')
             hintText: {
-                if (pandoraSession.settings && pandoraSession.settings['account']['email'] === '')
-                    return pagePlaceholder.hintText = qsTr("No account configured!")
+                if (!pandoraSession.haveAccount)
+                    return qsTr("No account configured!")
                 else
                     return pandoraSession.connectionError
             }
@@ -137,7 +137,7 @@ Page {
         BusyIndicator {
             size: BusyIndicatorSize.Medium
             anchors.centerIn: parent
-            visible: !py.ready || loading
+            visible: !py.ready || pandoraSession.isLoading
             running: visible
         }
     }

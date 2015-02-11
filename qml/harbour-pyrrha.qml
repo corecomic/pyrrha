@@ -38,7 +38,6 @@ ApplicationWindow
 
     MediaPlayback {
         id: player
-        onPlayerCreated: page.createPlayerPage();
     }
 
     Session {

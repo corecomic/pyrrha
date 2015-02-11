@@ -30,7 +30,6 @@ Audio {
     property var song: undefined
     property var songList: undefined
 
-    signal playerCreated()
     signal songListUpdated()
 
     property bool isPlaying: playbackState == MediaPlayer.PlayingState
