@@ -25,26 +25,10 @@ Page {
     id: mainPage
 
     property bool loading: true
-    property int currentStation: -1
-
-    Component.onCompleted: {
-        loadStationList()
-    }
 
     Connections {
         target: py
-        onConnected: loadStationList();
-    }
-
-    function loadStationList() {
-        stationListModel.clear();
-        py.call('pyrrha.get_station_list', [], function(result) {
-            // Load the received data into the list model
-            for (var i=0; i<result.length; i++) {
-                stationListModel.append(result[i]);
-            }
-            pandoraSession.isLoading = false;
-        });
+        onConnected: stationListModel.loadStations();
     }
 
     // To enable PullDownMenu, place our content in a SilicaFlickable
@@ -70,7 +54,7 @@ Page {
                     pandoraSession.isLoading = true
                     if (!pandoraSession.isConnected && pandoraSession.haveAccount)
                         pandoraSession.connect()
-                    loadStationList()
+                    stationListModel.loadStations()
                 }
             }
         }
@@ -79,36 +63,12 @@ Page {
             title: qsTr("Pyrrha")
         }
 
-        model: ListModel {
+        model: StationModel {
             id: stationListModel
         }
 
-        delegate: ListItem {
+        delegate: StationDelegate {
             id: listItem
-            height: Theme.itemSizeSmall
-
-            Label {
-                text: name
-                anchors {
-                    left: parent.left
-                    right: parent.right
-                    margins: Theme.paddingLarge
-                    verticalCenter: parent.verticalCenter
-                }
-                color: highlighted || (index === currentStation) ? Theme.highlightColor : Theme.primaryColor
-            }
-
-            onClicked: {
-                currentStation = index;
-                py.call('pyrrha.station_changed', [stationListModel.get(currentStation).name], function(result) {
-                    if (result) {
-                        player.songIndex = 0
-                        player.getSongList(true)
-                    }
-                });
-                if (!quickControls.open)
-                    quickControls.open = true
-            }
         }
 
         section.property: 'section'
@@ -123,7 +83,7 @@ Page {
         ViewPlaceholder {
             id: pagePlaceholder
 
-            enabled: stationListModel.count == 0 && py.ready && !pandoraSession.isLoading
+            enabled: !stationListModel.hasStations() && py.ready && !pandoraSession.isLoading
             text: qsTr('No stations')
             hintText: {
                 if (!pandoraSession.haveAccount)

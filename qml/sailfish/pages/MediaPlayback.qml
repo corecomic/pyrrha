@@ -30,6 +30,8 @@ Audio {
     property var song: undefined
     property var songList: undefined
 
+    property int currentStation: -1
+
     signal songListUpdated()
 
     property bool isPlaying: playbackState == MediaPlayer.PlayingState
