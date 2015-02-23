@@ -28,7 +28,7 @@ Audio {
     property int songIndex: 0
     property int songsRemaining: 0
     property var song: undefined
-    property var songList: undefined
+    property SongModel songList: SongModel{}
 
     property int currentStation: -1
 
@@ -49,24 +49,14 @@ Audio {
 
     function playNext() {
         songIndex = songIndex+1;
-        song = songList[songIndex];
-
+        song = songList.get(songIndex);
         playbackSong(song.audioURL)
     }
 
-    function getSongList(doStart) {
-        doStart = typeof doStart !== 'undefined' ? doStart : false;
-
-        py.call('pyrrha.get_playlist', [], function() {
-            py.call('pyrrha.get_song_list', [], function(result) {
-                songList = result;
-                song = songList[songIndex];
-                console.log('SongList Updated...');
-                if (doStart) {
-                    playbackSong(song.audioURL);
-                }
-            })
-        })
+    function selectSong(index) {
+        songIndex = index;
+        song = songList.get(songIndex);
+        playbackSong(song.audioURL)
     }
 
     function playbackSong(songUrl) {
@@ -77,18 +67,18 @@ Audio {
         }
 
         // First, make sure we stop any playing song
-        player.stop();
+        //player.stop();
 
-        songsRemaining = songList.length - (songIndex)
+        songsRemaining = songList.count - (songIndex)
 
         if (songsRemaining <= 0){
             //self.get_playlist()
             console.log('out of songs...')
-            getSongList(true)
+            songList.loadSongs(true)
         } else if (songsRemaining == 1){
             //preload next playlist
             console.log('should load next list...')
-            getSongList()
+            songList.loadSongs()
         }
 
 
@@ -112,7 +102,7 @@ Audio {
 
     onSongListUpdated: {
         console.log('SongList Updated...')
-        playbackSong(songList[songIndex].audioURL)
+        playbackSong(songList.get(songIndex).audioURL)
     }
 
 

@@ -30,10 +30,26 @@ ApplicationWindow
     initialPage: Component { Main { id: mainPage } }
     cover: Qt.resolvedUrl("sailfish/cover/CoverPage.qml")
 
+    property bool showFullControls: false
+    onShowFullControlsChanged: {
+        if(showFullControls) {
+            quickControls.open = false
+            pageStack.push(fullControls, undefined, PageStackAction.Immediate)
+        } else {
+            pageStack.pop()
+            if(player.song && !quickControls.open)
+                quickControls.open = true
+        }
+    }
+
     Python { id: py }
 
     QuickControls {
         id: quickControls
+    }
+
+    FullControls {
+        id: fullControls
     }
 
     MediaPlayback {

@@ -45,7 +45,7 @@ DockedPanel {
         MouseArea {
             id: opener
             anchors.fill: parent
-            //onClicked: if (!fullControls.open) { fullControls.open = true }
+            onClicked: appWindow.showFullControls = !appWindow.showFullControls
         }
 
         Row {

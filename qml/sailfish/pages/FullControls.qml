@@ -80,18 +80,26 @@ Page {
 
                 currentIndex: -1
                 onMovingChanged: {
-                    if (!moving)
-                        spotifySession.playQueue.selectTrack(currentIndex)
-                }
-
-                Connections {
-                    target: spotifySession.playQueue
-                    onTracksChanged: {
-                        coverList.currentIndex = coverList.model.currentPlayIndex
+                    if (horizontalVelocity == 0){
+                        // do nothing
+                    } else if (horizontalVelocity < 0){
+                        // do not allow going back
+                        cancelFlick()
+                        coverList.currentIndex = player.songIndex
+                    } else {
+                        if (!moving)
+                            player.selectSong(currentIndex)
                     }
                 }
 
-                model: spotifySession.playQueue.tracks()
+                Connections {
+                    target: player
+                    onSongChanged: {
+                        coverList.currentIndex = player.songIndex
+                    }
+                }
+
+                model: player.songList
                 delegate: Item {
                     width: coverList.width
                     height: coverList.height
@@ -99,7 +107,8 @@ Page {
                         width: Math.min(coverList.width, coverList.height)
                         height: width
                         anchors.horizontalCenter: parent.horizontalCenter
-                        source: albumCoverId + (imageMouseArea.pressed ? "?" + Theme.highlightColor : "")
+                        source: player.song ? player.song.artURL + (imageMouseArea.pressed ? "?" + Theme.highlightColor : "")
+                                            : ""
                         fillMode: Image.PreserveAspectCrop
                         clip: true
                         smooth: true
@@ -134,7 +143,7 @@ Page {
                         width: parent.width
                         truncationMode: TruncationMode.Fade
                         opacity: details.opacity
-                        text: spotifySession.currentTrack ? spotifySession.currentTrack.name : ""
+                        text: player.song ? player.song.name : ""
                     }
 
                     Item {
@@ -155,7 +164,7 @@ Page {
                                 truncationMode: TruncationMode.Fade
                                 anchors.left: parent.left
                                 anchors.right: parent.right
-                                text: spotifySession.currentTrack ? spotifySession.currentTrack.artists : ""
+                                text: player.song ? player.song.artist : ""
                             }
                             Label {
                                 width: parent.width
@@ -164,7 +173,7 @@ Page {
                                 truncationMode: TruncationMode.Fade
                                 anchors.left: parent.left
                                 anchors.right: parent.right
-                                text: spotifySession.currentTrack ? spotifySession.currentTrack.album : ""
+                                text: player.song ? player.song.album : ""
                             }
                         }
 
@@ -173,7 +182,6 @@ Page {
                             anchors.right: parent.right
                             anchors.verticalCenter: parent.verticalCenter
                             source: "image://theme/icon-m-about"
-                            visible: !spotifySession.offlineMode
                         }
                     }
                 }
@@ -182,7 +190,7 @@ Page {
                     // TODO
                     id: moreMouseArea
                     anchors.fill: parent
-                    onClicked: { infoDialog.selectedIndex = -1; infoDialog.open(); }
+                    onClicked: { }
                     enabled: moreIcon.visible
                 }
             }
@@ -217,33 +225,25 @@ Page {
 
                 VerticalScrollDecorator {}
 
-                model: spotifySession.playQueue.tracks()
-                delegate: Item {
+                model: player.songList
+
+                delegate: SongDelegate {
+                    songName: name
+                    artistAndAlbum: artist + " | " + album
+                    coverURL: artURL
+                    duration: duration
+                    onClicked: {
+                        if (!isPlaying)
+                            player.selectSong(index)
+                        else
+                            flipable.flipped = false
+                    }
 
                 }
 
-//                delegate: TrackDelegate {
-//                    property bool isExplicit: spotifySession.playQueue.isExplicitTrack(index)
-//                    name: trackName
-//                    //backgroundOpacity: isExplicit ? 0.6 : 0.0
-//                    // TODO those colors are no longer used.. / the opacity above neither
-//                    //titleColor: isExplicit ? ("#c6a83f") : (UI.LIST_TITLE_COLOR)
-//                    //subtitleColor: isExplicit ? ("#a79144") : (UI.LIST_SUBTITLE_COLOR)
-//                    artistAndAlbum: artists + " | " + album
-//                    duration: duration
-//                    isPlaying: isCurrentPlayingTrack
-//                    onClicked: {
-//                        if (!isCurrentPlayingTrack)
-//                            spotifySession.playQueue.selectTrack(index)
-//                        else
-//                            flipable.flipped = false
-//                    }
-
-//                }
-
                 Connections {
-                    target: spotifySession
-                    onCurrentTrackChanged: queueList.positionViewAtIndex(queueList.model.currentPlayIndex, ListView.Center)
+                    target: player
+                    onSongIndexChanged: queueList.positionViewAtIndex(player.songIndex , ListView.Center)
                 }
             }
         }
@@ -271,20 +271,20 @@ Page {
             Label {
                 width: parent.width
                 truncationMode: TruncationMode.Fade
-                text: spotifySession.currentTrack ? spotifySession.currentTrack.name : ""
+                text: player.song ? player.song.name : ""
             }
             Label {
                 width: parent.width
                 font.pixelSize: Theme.fontSizeSmall
                 truncationMode: TruncationMode.Fade
-                text: spotifySession.currentTrack ? spotifySession.currentTrack.artists : ""
+                text: player.song ? player.song.artist : ""
             }
             Label {
                 width: parent.width
                 font.pixelSize: Theme.fontSizeSmall
                 color: Theme.secondaryColor
                 truncationMode: TruncationMode.Fade
-                text: spotifySession.currentTrack ? spotifySession.currentTrack.album : ""
+                text: player.song ? player.song.album : ""
             }
         }
 
@@ -300,27 +300,32 @@ Page {
             Row {
                 id: controls
                 width: parent.width
-                property real itemWidth: width / 3
+                property real itemWidth: width / 4
                 IconButton {
                     width: controls.itemWidth
                     anchors.verticalCenter: parent.verticalCenter
-                    icon.source: "image://theme/icon-m-previous"
-                    onClicked: spotifySession.playPrevious()
+                    icon.source: "image://theme/icon-m-like"
+                    onClicked: player.loveSong()
                 }
-
                 IconButton {
                     width: controls.itemWidth
                     anchors.verticalCenter: parent.verticalCenter
-                    icon.source: spotifySession.isPlaying ? "image://theme/icon-l-pause"
-                                                          : "image://theme/icon-l-play"
-                    onClicked: spotifySession.isPlaying ? spotifySession.pause() : spotifySession.resume()
+                    icon.source: "image://theme/icon-m-like"
+                    icon.rotation: 180
+                    onClicked: player.banSong()
                 }
-
+                IconButton {
+                    width: controls.itemWidth
+                    anchors.verticalCenter: parent.verticalCenter
+                    icon.source: player.isPlaying ? "image://theme/icon-l-pause"
+                                                  : "image://theme/icon-l-play"
+                    onClicked: player.togglePause()
+                }
                 IconButton {
                     width: controls.itemWidth
                     anchors.verticalCenter: parent.verticalCenter
                     icon.source: "image://theme/icon-m-next"
-                    onClicked: spotifySession.playNext()
+                    onClicked: player.playNext()
                 }
             }
 
@@ -328,27 +333,16 @@ Page {
                 id: slider
                 width: parent.width
 
-                enabled: spotifySession.currentTrack ? true : false
+                enabled: false
 
                 handleVisible: false
-                valueText: value > 3599 ? Format.formatDuration(value, Formatter.DurationLong) :
-                                          Format.formatDuration(value, Formatter.DurationShort)
+                valueText: Format.formatDuration(value/1000, Formatter.DurationShort)
 
                 minimumValue: 0
-                onReleased: spotifySession.seek(slider.value * 1000)
-
-                Connections {
-                    target: spotifySession
-                    onCurrentTrackPositionChanged: {
-                        if (!slider.pressed)
-                            slider.value = spotifySession.currentTrackPosition / 1000;
-                    }
-                    onCurrentTrackChanged: {
-                        if(spotifySession.currentTrack)
-                            slider.maximumValue = spotifySession.currentTrack.durationMs / 1000
-                    }
-                }
+                maximumValue: player.duration
+                value: player.position
             }
+
 
             Row {
                 id: moreControls
@@ -359,45 +353,35 @@ Page {
                     width: moreControls.itemWidth
                     anchors.verticalCenter: parent.verticalCenter
                     icon.source: "image://theme/icon-m-add"
-                    enabled: !spotifySession.offlineMode
                     onClicked: {
-                        //                        TODO mainPage.playlistSelection.track = spotifySession.currentTrack;
-                        //                        mainPage.playlistSelection.selectedIndex = -1;
-                        //                        mainPage.playlistSelection.open();
+                        // Create a new Station from Song/Artist
                     }
                 }
 
                 IconButton {
                     width: moreControls.itemWidth
                     anchors.verticalCenter: parent.verticalCenter
-                    icon.source: spotifySession.currentTrack ? (spotifySession.currentTrack.isStarred ? ("image://theme/icon-m-favorite-selected")
-                                                                                                      : ("image://theme/icon-m-favorite"))
-                                                             : ("image://theme/icon-m-favorite-selected")
-                    enabled: !spotifySession.offlineMode
-                    onClicked: spotifySession.currentTrack.isStarred = !spotifySession.currentTrack.isStarred
-                }
-
-                IconButton {
-                    width: moreControls.itemWidth
-                    anchors.verticalCenter: parent.verticalCenter
-                    icon.source: spotifySession.shuffle ? ("image://theme/icon-m-shuffle?" + Theme.highlightColor) : ("image://theme/icon-m-shuffle")
-                    onClicked: spotifySession.shuffle = !spotifySession.shuffle
-                }
-
-                IconButton {
-                    width: moreControls.itemWidth
-                    anchors.verticalCenter: parent.verticalCenter
-                    icon.source: spotifySession.repeat ? "image://theme/icon-m-repeat?" + Theme.highlightColor
-                                                          : spotifySession.repeatOne ? "image://icon/icon-m-repeat-once?" + Theme.highlightColor : ("image://theme/icon-m-repeat")
+                    icon.source: ""
                     onClicked: {
-                        if (spotifySession.repeat) {
-                            spotifySession.repeat = false;
-                            spotifySession.repeatOne = true;
-                        } else if (spotifySession.repeatOne) {
-                            spotifySession.repeatOne = false;
-                        } else {
-                            spotifySession.repeat = true;
-                        }
+                        // Move to another Station
+                    }
+                }
+
+                IconButton {
+                    width: moreControls.itemWidth
+                    anchors.verticalCenter: parent.verticalCenter
+                    icon.source: ""
+                    onClicked: {
+                        // Tired of this Song
+                    }
+                }
+
+                IconButton {
+                    width: moreControls.itemWidth
+                    anchors.verticalCenter: parent.verticalCenter
+                    icon.source: ""
+                    onClicked: {
+                        // ...
                     }
                 }
 
