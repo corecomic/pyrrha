@@ -37,4 +37,15 @@ ListModel{
     function hasStations() {
         return stationModel.count > 0
     }
+
+    function stationChanged(stationName) {
+        py.call('pyrrha.station_changed', [stationName], function(result) {
+            if (result) {
+                player.songIndex = 0
+                player.songList.loadSongs(true)
+            }
+        });
+        if (!quickControls.open)
+            quickControls.open = true
+    }
 }

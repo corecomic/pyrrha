@@ -40,7 +40,7 @@ CoverBackground {
         }
         color: Theme.highlightColor
         font.pixelSize: Theme.fontSizeHuge
-        text: player.song ? formatDuration(player.position/1000) : ""
+        text: player.song ? Format.formatDuration(player.position/1000, Formatter.DurationShort) : ""
     }
     Label {
         id: trackLabel
@@ -79,25 +79,17 @@ CoverBackground {
         CoverAction {
             iconSource: "image://theme/icon-cover-shuffle"
             onTriggered: {
-                py.call('pyrrha.station_changed', ["QuickMix"])
-                player.getSongList(true)
+                player.currentStation = 0;
+                py.call('pyrrha.station_changed', ["QuickMix"], function(result) {
+                    if (result) {
+                        player.songIndex = 0
+                        player.songList.loadSongs(true)
+                    }
+                });
+                if (!quickControls.open)
+                    quickControls.open = true
             }
         }
-    }
-
-    function formatDuration(duration) {
-        if (duration !== 0 && !duration) {
-            return ''
-        }
-
-        var h = parseInt(duration / 3600) % 24
-        var m = parseInt(duration / 60) % 60
-        var s = parseInt(duration % 60)
-
-        var hh = h > 0 ? (h < 10 ? '0' + h : h) + ':' : ''
-        var ms = (m < 10 ? '0' + m : m) + ':' + (s < 10 ? '0' + s : s)
-
-        return ms
     }
 }
 

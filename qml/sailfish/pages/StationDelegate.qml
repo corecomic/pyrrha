@@ -59,15 +59,7 @@ ListItem {
 
     onClicked: {
         player.currentStation = index;
-        py.call('pyrrha.station_changed', [stationListModel.get(index).name], function(result) {
-            if (result) {
-                player.songIndex = 0
-                //player.getSongList(true)
-                player.songList.loadSongs(true)
-            }
-        });
-        if (!quickControls.open)
-            quickControls.open = true
+        stationListModel.stationChanged(stationListModel.get(index).name)
     }
 
     function remove() {
