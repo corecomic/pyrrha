@@ -18,7 +18,7 @@
 
 
 """
-Python wrapper file for pithos-mobile, using PyOtherSide
+Python wrapper file for pyrrha using PyOtherSide
 
 """
 
@@ -257,13 +257,15 @@ class PithosMobile(object):
     def get_song_list(self):
         song_list = []
         for song in self.songs_model:
-                song_list.append({'name': song[0].songName,
+                song_list.append({'name': song[0].title,
                                   'album': song[0].album,
                                   'artist': song[0].artist,
                                   'audioURL': song[0].audioUrl,
-                                  'artURL': song[0].artRadio})
-
-
+                                  'artURL': song[0].artRadio,
+                                  'songDetailURL': song[0].songDetailURL,
+                                  'rating': song[0].rating_str,
+                                  'tired': song[0].tired,
+                                  'playlistTime': song[0].playlist_time})
         return song_list
 
 

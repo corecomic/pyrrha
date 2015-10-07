@@ -32,11 +32,7 @@ ListModel{
                 for (var i=0; i<result.length; i++) {
                     songModel.append(result[i]);
                 }
-                player.song = songModel.get(player.songIndex);
-                console.log('SongList Updated...');
-                if (doStart) {
-                    player.playbackSong(player.song.audioURL);
-                }
+                player.songListUpdated();
             })
         })
     }

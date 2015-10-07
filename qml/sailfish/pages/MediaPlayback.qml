@@ -31,6 +31,7 @@ Audio {
     property SongModel songList: SongModel{}
 
     property int currentStation: -1
+    readonly property int playlistValidityTime: 60*60*3
 
     signal songListUpdated()
 
@@ -49,8 +50,10 @@ Audio {
 
     function playNext() {
         songIndex = songIndex+1;
-        song = songList.get(songIndex);
-        playbackSong(song.audioURL)
+        if ((songIndex+1) <= songList.count){
+            song = songList.get(songIndex);
+            playbackSong(song.audioURL)
+        }
     }
 
     function selectSong(index) {
@@ -67,7 +70,7 @@ Audio {
         }
 
         // First, make sure we stop any playing song
-        //player.stop();
+        player.stop();
 
         songsRemaining = songList.count - (songIndex)
 
@@ -81,6 +84,12 @@ Audio {
             songList.loadSongs()
         }
 
+        // Check if song is expired
+        if (((new Date().getTime())/1000 - song.playlistTime) >= playlistValidityTime){
+            console.log('Playlist expired!');
+            playNext();
+            return;
+        }
 
         //if self.current_song.tired or self.current_song.rating == RATE_BAN:
         //    return self.next_song()
@@ -101,13 +110,9 @@ Audio {
     }
 
     onSongListUpdated: {
-        console.log('SongList Updated...')
-        playbackSong(songList.get(songIndex).audioURL)
-    }
-
-
-    onPlaybackStateChanged: {
-
+        console.log('SongList Updated...');
+        song = songList.get(songIndex);
+        playbackSong(song.audioURL);
     }
 
     onStatusChanged: {
@@ -120,5 +125,6 @@ Audio {
         console.log("Track unplayable");
         console.log(errorString);
         //playNext();
+        //TODO: catch expired songs..: Forbidden
     }
 }

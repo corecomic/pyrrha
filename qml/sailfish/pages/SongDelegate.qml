@@ -38,6 +38,7 @@ BackgroundItem {
         else
             player.selectSong(index)
     }
+
     height: Theme.itemSizeSmall
     width: parent.width
 
