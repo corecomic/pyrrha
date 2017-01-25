@@ -1,6 +1,7 @@
 *.pro*
 build/
 dist/
+.idea/
 __pycache__
 rpm/*.rpm
 *~

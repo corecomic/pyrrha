@@ -4,6 +4,8 @@ A cute Pandora client.
 Pyrrha is a mobile Pandora Radio client written in Python and QML, using PyOtherSide.
 Native UI for Sailfish OS.
 
+The Pandora Python library from Pithos (http://pithos.github.io) is used.
+The UI is inspired by cutespotify (https://github.com/Elleo/cutespotify).
 
 License: GNU GPLv3+
 

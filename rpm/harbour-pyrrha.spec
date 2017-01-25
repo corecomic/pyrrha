@@ -3,7 +3,7 @@
 
 Name:       harbour-pyrrha
 Summary:    A Cute Pandora Client
-Version:    0.1
+Version:    0.2
 Release:    1
 Group:      Applications/Multimedia
 License:    GPLv3
@@ -15,7 +15,7 @@ Requires:   sailfishsilica-qt5 >= 0.10.9
 Requires:   pyotherside-qml-plugin-python3-qt5 >= 1.3.0
 
 %description
-Pyrrha is a native Pandora Radio client for Sailfish.
+Pyrrha is a native Pandora Radio client for Sailfish OS.
 
 
 %prep
@@ -50,6 +50,9 @@ cp -rpv %{name}.png $TARGET/
 %changelog
 # * date Author's Name <author's email> version-release
 # - Summary of changes
+
+* Wed Jan 25 2017 Core Comic <core.comic@gmail.com> 0.2-1
+- First public release
 
 * Sun Feb 08 2015 Core Comic <core.comic@gmail.com> 0.1-1
 - Pre-release build
