@@ -91,7 +91,9 @@ DockedPanel {
                     IconButton {
                         width: controls.itemWidth
                         anchors.verticalCenter: parent.verticalCenter
-                        icon.source: "image://theme/icon-s-like"
+                        icon.source: "image://theme/icon-s-like?" + (player.song && player.song.rating === 'love'
+                                                                     ? Theme.highlightColor
+                                                                     : Theme.primaryColor)
                         onClicked: player.loveSong()
                     }
 

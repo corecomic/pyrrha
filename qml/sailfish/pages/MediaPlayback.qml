@@ -18,8 +18,7 @@
  */
 
 import QtQuick 2.0
-import QtMultimedia 5.0
-
+import QtMultimedia 5.4
 
 Audio {
     id: player
@@ -31,24 +30,37 @@ Audio {
     property SongModel songList: SongModel{}
 
     property int currentStation: -1
-    readonly property int playlistValidityTime: 60*60*3
+    readonly property int playlistValidityTime: 60*60
 
     signal songListUpdated()
 
     property bool isPlaying: playbackState == MediaPlayer.PlayingState
 
+    //autoPlay: true
 
-    autoPlay: true
+    function isValid() {
+        console.log('Expired Time: ', (((new Date().getTime()) + (player.duration - player.position))/1000 - song.playlistTime))
+        return (((new Date().getTime()) + (player.duration - player.position))/1000 - song.playlistTime) < playlistValidityTime
+    }
 
     function togglePause() {
         if (playbackState === MediaPlayer.PlayingState) {
             pause();
         } else if (playbackState === MediaPlayer.PausedState) {
-            play();
+            // Check if song is expired
+            if (!isValid()) {
+                console.log('Playlist expired!');
+                notification.summary = qsTr('This song has expired, skipping...');
+                notification.publish();
+                playNext();
+            } else {
+                play();
+            }
         }
     }
 
     function playNext() {
+        setFinished();
         songIndex = songIndex+1;
         if ((songIndex+1) <= songList.count){
             song = songList.get(songIndex);
@@ -70,7 +82,7 @@ Audio {
         }
 
         // First, make sure we stop any playing song
-        player.stop();
+        //player.stop();
 
         songsRemaining = songList.count - (songIndex)
 
@@ -85,14 +97,22 @@ Audio {
         }
 
         // Check if song is expired
-        if (((new Date().getTime())/1000 - song.playlistTime) >= playlistValidityTime){
+        if (!isValid()) {
             console.log('Playlist expired!');
+            notification.summary = qsTr('This song has expired, skipping...');
+            notification.publish();
             playNext();
             return;
         }
 
-        //if self.current_song.tired or self.current_song.rating == RATE_BAN:
-        //    return self.next_song()
+        // Check if song is marked as beeing tired of
+        if(song.tired){
+            console.log('You are tired of this song...');
+            notification.summary = qsTr('Skipping, you are tired of this song...');
+            notification.publish();
+            playNext();
+            return;
+        }
 
         console.log("Starting song: "+song.name)
 
@@ -102,11 +122,32 @@ Audio {
     }
 
     function loveSong(){
-
+        py.call('pyrrha.love_song', [song.audioURL], function(result) {
+            songList.readList();
+        });
     }
 
     function banSong(){
+        py.call('pyrrha.ban_song', [song.audioURL], function(result) {
+            playNext();
+        });
+    }
 
+    function setTired(){
+        py.call('pyrrha.set_tired', [song.audioURL], function(result) {
+            songList.readList();
+            //playNext();
+        });
+    }
+
+    function setFinished(){
+        py.call('pyrrha.set_finished', [song.audioURL], function(result) {
+            songList.readList();
+        });
+    }
+
+    onPlaybackStateChanged: {
+        mprisPlayer.updatePlaybackStatus(); //MPRIS
     }
 
     onSongListUpdated: {
@@ -116,9 +157,11 @@ Audio {
     }
 
     onStatusChanged: {
+        //console.log('Status: ', status)
         if (status === MediaPlayer.EndOfMedia) {
             playNext()
         }
+        mprisPlayer.updateMprisMetadata(); //MPRIS
     }
 
     onError: {
@@ -128,3 +171,7 @@ Audio {
         //TODO: catch expired songs..: Forbidden
     }
 }
+
+
+
+

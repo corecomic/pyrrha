@@ -190,7 +190,9 @@ Page {
                     // TODO
                     id: moreMouseArea
                     anchors.fill: parent
-                    onClicked: { }
+                    onClicked: {
+                        Qt.openUrlExternally(player.song.songDetailURL)
+                    }
                     enabled: moreIcon.visible
                 }
             }
@@ -232,10 +234,17 @@ Page {
                     artistAndAlbum: artist + " | " + album
                     coverURL: artURL
                     duration: duration
+                    isFinished: finished
                     onClicked: {
-                        if (!isPlaying)
-                            player.selectSong(index)
+                        if(finished)
+                            return
+
+                        if(isPlaying && !player.isPlaying)
+                            player.play()
                         else
+                            player.selectSong(index)
+
+                        if(isPlaying)
                             flipable.flipped = false
                     }
 
@@ -304,7 +313,9 @@ Page {
                 IconButton {
                     width: controls.itemWidth
                     anchors.verticalCenter: parent.verticalCenter
-                    icon.source: "image://theme/icon-m-like"
+                    icon.source: "image://theme/icon-m-like?" + (player.song && player.song.rating === 'love'
+                                                                 ? Theme.highlightColor
+                                                                 : Theme.primaryColor)
                     onClicked: player.loveSong()
                 }
                 IconButton {
@@ -354,7 +365,7 @@ Page {
                     anchors.verticalCenter: parent.verticalCenter
                     icon.source: "image://theme/icon-m-add"
                     onClicked: {
-                        // Create a new Station from Song/Artist
+                        pageStack.push(Qt.resolvedUrl("AddStation.qml"), { query: player.song.artist + ' ' + player.song.name })
                     }
                 }
 
@@ -370,10 +381,10 @@ Page {
                 IconButton {
                     width: moreControls.itemWidth
                     anchors.verticalCenter: parent.verticalCenter
-                    icon.source: ""
-                    onClicked: {
-                        // Tired of this Song
-                    }
+                    icon.source: "image://theme/icon-m-remove?" + (player.song && player.song.tired
+                                                                   ? Theme.highlightColor
+                                                                   : Theme.primaryColor)
+                    onClicked: player.setTired()
                 }
 
                 IconButton {
@@ -381,7 +392,7 @@ Page {
                     anchors.verticalCenter: parent.verticalCenter
                     icon.source: ""
                     onClicked: {
-                        // ...
+                        // Bookmark this song
                     }
                 }
 

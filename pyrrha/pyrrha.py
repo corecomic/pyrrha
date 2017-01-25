@@ -39,9 +39,7 @@ try:
     import pyotherside
 except ImportError:
     # Allow testing Python backend alone.
-    # print("PyOtherSide not found, continuing anyway!")
-    pass
-
+    print("PyOtherSide not found, continuing anyway!")
 
 from pandora import *
 from pandora.data import *
@@ -265,15 +263,102 @@ class PithosMobile(object):
                                   'songDetailURL': song[0].songDetailURL,
                                   'rating': song[0].rating_str,
                                   'tired': song[0].tired,
+                                  'finished': song[0].finished,
+                                  'trackLength': song[0].trackLength,
                                   'playlistTime': song[0].playlist_time})
         return song_list
+
+    def love_song(self, song_url):
+        for item in self.songs_model:
+            if item[0].audioUrl == song_url:
+                song = item
+                break
+        if song[0].rating_str == RATE_LOVE:
+            rate = RATE_NONE
+        else:
+            rate = RATE_LOVE
+        try:
+            song[0].rate(rate)
+        except Exceptopion as e:
+            logging.error(e)
+
+    def ban_song(self, song_url):
+        for item in self.songs_model:
+            if item[0].audioUrl == song_url:
+                song = item
+                break
+        try:
+            song[0].rate(RATE_BAN)
+        except Exceptopion as e:
+            logging.error(e)
+
+    def set_tired(self, song_url):
+        for item in self.songs_model:
+            if item[0].audioUrl == song_url:
+                song = item
+                break
+        try:
+            song[0].set_tired()
+        except Exceptopion as e:
+            logging.error(e)
+
+    def set_finished(self, song_url):
+        for item in self.songs_model:
+            if item[0].audioUrl == song_url:
+                song = item
+                break
+        song[0].finished = True
+
+
+    def search_station(self, query):
+        search_list = []
+        result = self.pandora.search(query)
+        for item in result:
+            if item.resultType == 'song':
+                search_list.append({'type': item.resultType,
+                                  'score': item.score,
+                                  'musicId': item.musicId,
+                                  'artist': item.artist,
+                                  'title': item.title})
+            elif item.resultType == 'artist':
+                search_list.append({'type': item.resultType,
+                                  'score': item.score,
+                                  'musicId': item.musicId,
+                                  'artist': item.name,
+                                  'title': ''})
+        return search_list
+
+    def add_station(self, music_id):
+        station = self.pandora.add_station_by_music_id(music_id)
+        logging.info("pyrrha: Adding station: " + station.name)
+        self.stations_model.append((station, station.name))
+        pyotherside.send('stationlist_changed')
+
+    def delete_station(self, station_name):
+        for item in self.stations_model:
+            if item[1] == station_name:
+                station = item[0]
+                self.stations_model.remove(item)
+                break
+        station.delete()
+        pyotherside.send('stationlist_changed')
+
+
+    def rename_station(self, station_name, new_name):
+        for item in self.stations_model:
+            if item[1] == station_name:
+                station = item[0]
+                idx = self.stations_model.index(item)
+                self.stations_model[idx] = self.stations_model[idx][:1] + (new_name,)
+                break
+        station.rename(new_name)
+        pyotherside.send('stationlist_changed')
 
 
 
 pyrrha = PithosMobile()
 
-#pyotherside.atexit(gpotherside.atexit)
-#pyotherside.send('hello', gpodder.__version__, __version__, podcastparser.__version__)
+#pyotherside.atexit(pyrrha.exit)
 
 # Exposed API Endpoints for calls from QML
 init = pyrrha.init
@@ -284,6 +369,14 @@ get_station_list = pyrrha.get_station_list
 get_song_list = pyrrha.get_song_list
 get_playlist = pyrrha.get_playlist
 station_changed = pyrrha.station_changed
+love_song = pyrrha.love_song
+ban_song = pyrrha.ban_song
+set_tired = pyrrha.set_tired
+search_station = pyrrha.search_station
+add_station = pyrrha.add_station
+delete_station = pyrrha.delete_station
+rename_station = pyrrha.rename_station
+set_finished = pyrrha.set_finished
 
 
 ## TESTING ##

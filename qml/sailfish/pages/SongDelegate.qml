@@ -27,17 +27,10 @@ BackgroundItem {
     property variant listModel
     property string songName: model.name
     property string artistAndAlbum: model.artist + " | " + model.album
-    property string duration: "" //model.trackDuration
+    property string duration: Format.formatDuration(model.trackLength, Formatter.DurationShort)
     property string coverURL: ""
-    property bool starred: false //model.isStarred
+    property bool isFinished: false
     readonly property bool isPlaying: player.songIndex === index
-
-    onClicked: {
-        if(isPlaying && !player.isPlaying)
-            player.play()
-        else
-            player.selectSong(index)
-    }
 
     height: Theme.itemSizeSmall
     width: parent.width
@@ -49,6 +42,7 @@ BackgroundItem {
         anchors.leftMargin: Theme.paddingLarge
         anchors.verticalCenter: parent.verticalCenter
         color: Theme.secondaryColor
+        opacity: listItem.isFinished ? 0.2 : 1.0
         Image {
             id: coverImage
             anchors.fill: parent
@@ -60,6 +54,8 @@ BackgroundItem {
         anchors.leftMargin: Theme.paddingLarge
         anchors.right: parent.right
         anchors.verticalCenter: parent.verticalCenter
+        opacity: listItem.isFinished ? 0.3 : 1.0
+
         Item {
             height: mainText.height
             anchors.left: parent.left
@@ -69,21 +65,10 @@ BackgroundItem {
                 id: mainText
                 text: listItem.songName
                 anchors.left: parent.left
-                anchors.right: iconItem.left
-                anchors.rightMargin: iconItem.visible ? Theme.paddingLarge : 0
+                anchors.right: parent.right
                 color: (highlighted || isPlaying) ? Theme.highlightColor : Theme.primaryColor
                 truncationMode: TruncationMode.Fade
                 clip: true
-            }
-            Image {
-                id: iconItem
-                anchors.right: parent.right
-                anchors.bottom: mainText.bottom
-                anchors.bottomMargin: 2
-                width: Theme.iconSizeSmall; height: width
-                smooth: true
-                visible: listItem.starred
-                source: "image://theme/icon-m-favorite-selected" + (highlighted ? "?" + Theme.highlightColor : "")
             }
         }
         Item {

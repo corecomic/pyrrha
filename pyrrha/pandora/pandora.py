@@ -1,19 +1,17 @@
 # -*- coding: utf-8; tab-width: 4; indent-tabs-mode: nil; -*-
-### BEGIN LICENSE
 # Copyright (C) 2010 Kevin Mehall <km@kevinmehall.net>
 # Copyright (C) 2012 Christopher Eby <kreed@kreed.org>
-#This program is free software: you can redistribute it and/or modify it
-#under the terms of the GNU General Public License version 3, as published
-#by the Free Software Foundation.
+# This program is free software: you can redistribute it and/or modify it
+# under the terms of the GNU General Public License version 3, as published
+# by the Free Software Foundation.
 #
-#This program is distributed in the hope that it will be useful, but
-#WITHOUT ANY WARRANTY; without even the implied warranties of
-#MERCHANTABILITY, SATISFACTORY QUALITY, or FITNESS FOR A PARTICULAR
-#PURPOSE.  See the GNU General Public License for more details.
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranties of
+# MERCHANTABILITY, SATISFACTORY QUALITY, or FITNESS FOR A PARTICULAR
+# PURPOSE.  See the GNU General Public License for more details.
 #
-#You should have received a copy of the GNU General Public License along
-#with this program.  If not, see <http://www.gnu.org/licenses/>.
-### END LICENSE
+# You should have received a copy of the GNU General Public License along
+# with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """Pandora JSON v5 API
 
@@ -29,6 +27,10 @@ import logging
 import time
 import urllib.request, urllib.parse, urllib.error
 import codecs
+import ssl
+from enum import IntEnum
+
+from . import data
 
 HTTP_TIMEOUT = 30
 USER_AGENT = 'pithos'
@@ -37,17 +39,57 @@ RATE_BAN = 'ban'
 RATE_LOVE = 'love'
 RATE_NONE = None
 
-API_ERROR_API_VERSION_NOT_SUPPORTED = 11
-API_ERROR_COUNTRY_NOT_SUPPORTED = 12
-API_ERROR_INSUFFICIENT_CONNECTIVITY = 13
-API_ERROR_READ_ONLY_MODE = 1000
-API_ERROR_INVALID_AUTH_TOKEN = 1001
-API_ERROR_INVALID_LOGIN = 1002
-API_ERROR_LISTENER_NOT_AUTHORIZED = 1003
-API_ERROR_PARTNER_NOT_AUTHORIZED = 1010
-API_ERROR_PLAYLIST_EXCEEDED = 1039
+class ApiError(IntEnum):
+    INTERNAL_ERROR = 0
+    MAINTENANCE_MODE = 1
+    URL_PARAM_MISSING_METHOD = 2
+    URL_PARAM_MISSING_AUTH_TOKEN = 3
+    URL_PARAM_MISSING_PARTNER_ID = 4
+    URL_PARAM_MISSING_USER_ID = 5
+    SECURE_PROTOCOL_REQUIRED = 6
+    CERTIFICATE_REQUIRED = 7
+    PARAMETER_TYPE_MISMATCH = 8
+    PARAMETER_MISSING = 9
+    PARAMETER_VALUE_INVALID = 10
+    API_VERSION_NOT_SUPPORTED = 11
+    COUNTRY_NOT_SUPPORTED = 12
+    INSUFFICIENT_CONNECTIVITY = 13
+    UNKNOWN_METHOD_NAME = 14
+    WRONG_PROTOCOL = 15
+    READ_ONLY_MODE = 1000
+    INVALID_AUTH_TOKEN = 1001
+    INVALID_LOGIN = 1002
+    LISTENER_NOT_AUTHORIZED = 1003
+    USER_NOT_AUTHORIZED = 1004
+    MAX_STATIONS_REACHED = 1005
+    STATION_DOES_NOT_EXIST = 1006
+    COMPLIMENTARY_PERIOD_ALREADY_IN_USE = 1007
+    CALL_NOT_ALLOWED = 1008
+    DEVICE_NOT_FOUND = 1009
+    PARTNER_NOT_AUTHORIZED = 1010
+    INVALID_USERNAME = 1011
+    INVALID_PASSWORD = 1012
+    USERNAME_ALREADY_EXISTS = 1013
+    DEVICE_ALREADY_ASSOCIATED_TO_ACCOUNT = 1014
+    UPGRADE_DEVICE_MODEL_INVALID = 1015
+    EXPLICIT_PIN_INCORRECT = 1018
+    EXPLICIT_PIN_MALFORMED = 1020
+    DEVICE_MODEL_INVALID = 1023
+    ZIP_CODE_INVALID = 1024
+    BIRTH_YEAR_INVALID = 1025
+    BIRTH_YEAR_TOO_YOUNG = 1026
+    # FIXME: They can't both be 1027?
+    # INVALID_COUNTRY_CODE = 1027
+    # INVALID_GENDER = 1027
+    DEVICE_DISABLED = 1034
+    DAILY_TRIAL_LIMIT_REACHED = 1035
+    INVALID_SPONSOR = 1036
+    USER_ALREADY_USED_TRIAL = 1037
+    PLAYLIST_EXCEEDED = 1039
+    # Catch all for undocumented error codes
+    UNKNOWN_ERROR = 100000
 
-PLAYLIST_VALIDITY_TIME = 60*60*3
+PLAYLIST_VALIDITY_TIME = 60*60
 
 NAME_COMPARE_REGEX = re.compile(r'[^A-Za-z0-9]')
 
@@ -65,7 +107,7 @@ class PandoraTimeout(PandoraNetError): pass
 def pad(s, l):
     return s + b'\0' * (l - len(s))
 
-class Pandora(object):
+class Pandora:
     """Access the Pandora API
 
     To use the Pandora class, make sure to call :py:meth:`set_audio_quality`
@@ -78,8 +120,8 @@ class Pandora(object):
     - :py:meth:`json_call` call into the JSON API directly
     """
     def __init__(self):
-        self.opener = urllib.request.build_opener()
-        pass
+        self.opener = self.build_opener()
+        self.connected = False
 
     def pandora_encrypt(self, s):
         return b''.join([codecs.encode(self.blowfish_encode.encrypt(pad(s[i:i+8], 8)), 'hex_codec') for i in range(0, len(s), 8)])
@@ -87,7 +129,9 @@ class Pandora(object):
     def pandora_decrypt(self, s):
         return b''.join([self.blowfish_decode.decrypt(pad(codecs.decode(s[i:i+16], 'hex_codec'), 8)) for i in range(0, len(s), 16)]).rstrip(b'\x08')
 
-    def json_call(self, method, args={}, https=False, blowfish=True):
+    def json_call(self, method, args=None, https=False, blowfish=True):
+        if not args:
+            args = {}
         url_arg_strings = []
         if self.partnerId:
             url_arg_strings.append('partner_id=%s'%self.partnerId)
@@ -118,8 +162,8 @@ class Pandora(object):
 
         try:
             req = urllib.request.Request(url, data, {'User-agent': USER_AGENT, 'Content-type': 'text/plain'})
-            response = self.opener.open(req, timeout=HTTP_TIMEOUT)
-            text = response.read().decode('utf-8')
+            with self.opener.open(req, timeout=HTTP_TIMEOUT) as response:
+                text = response.read().decode('utf-8')
         except urllib.error.HTTPError as e:
             logging.error("HTTP error: %s", e)
             raise PandoraNetError(str(e))
@@ -133,34 +177,39 @@ class Pandora(object):
         logging.debug(text)
 
         tree = json.loads(text)
-
         if tree['stat'] == 'fail':
             code = tree['code']
             msg = tree['message']
-            logging.error('fault code: ' + str(code) + ' message: ' + msg)
 
-            if code == API_ERROR_INVALID_AUTH_TOKEN:
+            try:
+                error_enum = ApiError(code)
+            except ValueError:
+                error_enum = ApiError.UNKNOWN_ERROR
+
+            logging.error('fault code: {} {} message: {}'.format(code, error_enum.name, msg))
+
+            if error_enum is ApiError.INVALID_AUTH_TOKEN:
                 raise PandoraAuthTokenInvalid(msg)
-            elif code == API_ERROR_COUNTRY_NOT_SUPPORTED:
+            elif error_enum is ApiError.COUNTRY_NOT_SUPPORTED:
                  raise PandoraError("Pandora not available", code,
                     submsg="Pandora is not available in your country.")
-            elif code == API_ERROR_API_VERSION_NOT_SUPPORTED:
+            elif error_enum is ApiError.API_VERSION_NOT_SUPPORTED:
                 raise PandoraAPIVersionError(msg)
-            elif code == API_ERROR_INSUFFICIENT_CONNECTIVITY:
+            elif error_enum is ApiError.INSUFFICIENT_CONNECTIVITY:
                 raise PandoraError("Out of sync", code,
                     submsg="Correct your system's clock. If the problem persists, a Pithos update may be required")
-            elif code == API_ERROR_READ_ONLY_MODE:
+            elif error_enum is ApiError.READ_ONLY_MODE:
                 raise PandoraError("Pandora maintenance", code,
                     submsg="Pandora is in read-only mode as it is performing maintenance. Try again later.")
-            elif code == API_ERROR_INVALID_LOGIN:
+            elif error_enum is ApiError.INVALID_LOGIN:
                 raise PandoraError("Login Error", code, submsg="Invalid username or password")
-            elif code == API_ERROR_LISTENER_NOT_AUTHORIZED:
+            elif error_enum is ApiError.LISTENER_NOT_AUTHORIZED:
                 raise PandoraError("Pandora Error", code,
                     submsg="A Pandora One account is required to access this feature. Uncheck 'Pandora One' in Settings.")
-            elif code == API_ERROR_PARTNER_NOT_AUTHORIZED:
+            elif error_enum is ApiError.PARTNER_NOT_AUTHORIZED:
                 raise PandoraError("Login Error", code,
                     submsg="Invalid Pandora partner keys. A Pithos update may be required.")
-            elif code == API_ERROR_PLAYLIST_EXCEEDED:
+            elif error_enum is ApiError.PLAYLIST_EXCEEDED:
                 raise PandoraError("Playlist Error", code,
                     submsg="You have requested too many playlists. Try again later.")
             else:
@@ -178,6 +227,18 @@ class Pandora(object):
         """
         self.audio_quality = fmt
 
+    @staticmethod
+    def build_opener(*handlers):
+        """Creates a new opener
+
+        Wrapper around urllib.request.build_opener() that adds
+        a custom ssl.SSLContext for use with internal-tuner.pandora.com
+        """
+        ctx = ssl.create_default_context()
+        ctx.load_verify_locations(cadata=data.internal_cert)
+        https = urllib.request.HTTPSHandler(context=ctx)
+        return urllib.request.build_opener(https, *handlers)
+
     def set_url_opener(self, opener):
         self.opener = opener
 
@@ -188,6 +249,7 @@ class Pandora(object):
         :param user:     The user's login email
         :param password: The user's login password
         """
+        self.connected = False
         self.partnerId = self.userId = self.partnerAuthToken = None
         self.userAuthToken = self.time_offset = None
 
@@ -213,7 +275,28 @@ class Pandora(object):
         self.userId = user['userId']
         self.userAuthToken = user['userAuthToken']
 
+        self.connected = True
         self.get_stations(self)
+
+    @property
+    def explicit_content_filter_state(self):
+        """The User must already be authenticated before this is called.
+           returns the state of Explicit Content Filter and if the Explicit Content Filter is PIN protected
+        """
+        get_filter_state = self.json_call('user.getSettings', https=True)
+        filter_state = get_filter_state['isExplicitContentFilterEnabled']
+        pin_protected = get_filter_state['isExplicitContentFilterPINProtected']
+        logging.info('Explicit Content Filter state: %s' %filter_state)
+        logging.info('PIN protected: %s' %pin_protected)
+        return filter_state, pin_protected
+
+    def set_explicit_content_filter(self, state):
+        """The User must already be authenticated before this is called.
+           Does not take effect until the next playlist.
+           Valid desired states are True to enable and False to disable the Explicit Content Filter.
+        """
+        self.json_call('user.setExplicitContentFilter', {'isExplicitContentFilterEnabled': state})
+        logging.info('Explicit Content Filter set to: %s' %(state))
 
     def get_stations(self, *ignore):
         stations = self.json_call('user.getStationList')['stations']
@@ -235,10 +318,14 @@ class Pandora(object):
         self.json_call('user.setQuickMix', {'quickMixStationIds': stationIds})
 
     def search(self, query):
-        results = self.json_call('music.search', {'searchText': query})
+        results = self.json_call(
+            'music.search',
+            {'includeGenreStations': True, 'includeNearMatches': True, 'searchText': query},
+        )
 
         l =  [SearchResult('artist', i) for i in results['artists']]
         l += [SearchResult('song',   i) for i in results['songs']]
+        l += [SearchResult('genre', i) for i in results['genreStations']]
         l.sort(key=lambda i: i.score, reverse=True)
 
         return l
@@ -263,7 +350,7 @@ class Pandora(object):
     def delete_feedback(self, stationToken, feedbackId):
         self.json_call('station.deleteFeedback', {'feedbackId': feedbackId, 'stationToken': stationToken})
 
-class Station(object):
+class Station:
     def __init__(self, pandora, d):
         self.pandora = pandora
 
@@ -285,12 +372,17 @@ class Station(object):
 
     def get_playlist(self):
         logging.info("pandora: Get Playlist")
-        playlist = self.pandora.json_call('station.getPlaylist', {'stationToken': self.idToken}, https=True)
-        songs = []
-        for i in playlist['items']:
-            if 'songName' in i: # check for ads
-                songs.append(Song(self.pandora, i))
-        return songs
+        # Set the playlist time to the time we requested a playlist.
+        # It is better that a playlist be considered invalid a fraction
+        # of a sec early than be considered valid any longer than it actually is.
+        playlist_time = time.time()
+        playlist = self.pandora.json_call('station.getPlaylist', {
+                        'stationToken': self.idToken,
+                        'includeTrackLength': True,
+                        'additionalAudioUrl': 'HTTP_32_AACPLUS,HTTP_128_MP3',
+                    }, https=True)['items']
+
+        return [Song(self.pandora, i, playlist_time) for i in playlist if 'songName' in i] 
 
     @property
     def info_url(self):
@@ -315,13 +407,13 @@ class Station(object):
             self.name,
         )
 
-class Song(object):
-    def __init__(self, pandora, d):
+class Song:
+    def __init__(self, pandora, d, playlist_time):
         self.pandora = pandora
+        self.playlist_time = playlist_time
 
         self.album = d['albumName']
         self.artist = d['artistName']
-        self.audioUrlMap = d['audioUrlMap']
         self.trackToken = d['trackToken']
         self.rating = RATE_LOVE if d['songRating'] == 1 else RATE_NONE # banned songs won't play, so we don't care about them
         self.stationId = d['stationId']
@@ -329,19 +421,43 @@ class Song(object):
         self.songDetailURL = d['songDetailUrl']
         self.songExplorerUrl = d['songExplorerUrl']
         self.artRadio = d['albumArtUrl']
+        self.trackLength = d['trackLength']
 
-        self.bitrate = None
+        self.audioUrlMap = d['audioUrlMap']
+
+        # Optionally we requested more URLs
+        if len(d.get('additionalAudioUrl', [])) == 2:
+            if int(self.audioUrlMap['highQuality']['bitrate']) < 128:
+                # We can use the higher quality mp3 stream for non-one users
+                self.audioUrlMap['mediumQuality'] = self.audioUrlMap['highQuality']
+                self.audioUrlMap['highQuality'] = {
+                    'encoding': 'mp3',
+                    'bitrate': '128',
+                    'audioUrl': d['additionalAudioUrl'][1],
+                }
+            else:
+                # And we can offer a lower bandwidth option for one users
+                self.audioUrlMap['lowQuality'] = {
+                    'encoding': 'aacplus',
+                    'bitrate': '32',
+                    'audioUrl': d['additionalAudioUrl'][0],
+                }
+
         self.is_ad = None  # None = we haven't checked, otherwise True/False
         self.tired=False
         self.message=''
+        self.duration = None
+        self.position = None
+        self.bitrate = None
         self.start_time = None
         self.finished = False
-        self.playlist_time = time.time()
         self.feedbackId = None
+        self.bitrate = None
+        self._title = ''
 
     @property
     def title(self):
-        if not hasattr(self, '_title'):
+        if not self._title:
             # the actual name of the track, minus any special characters (except dashes) is stored
             # as the last part of the songExplorerUrl, before the args.
             explorer_name = self.songExplorerUrl.split('?')[0].split('/')[-1]
@@ -352,9 +468,8 @@ class Song(object):
                 self._title = self.songName
             else:
                 try:
-                    xml_data = urllib.urlopen(self.songExplorerUrl)
-                    dom = minidom.parseString(xml_data.read())
-                    attr_value = dom.getElementsByTagName('songExplorer')[0].attributes['songTitle'].value
+                    with urllib.urlopen(self.songExplorerUrl) as x, minidom.parseString(x.read()) as dom:
+                        attr_value = dom.getElementsByTagName('songExplorer')[0].attributes['songTitle'].value
 
                     # Pandora stores their titles for film scores and the like as 'Score name: song name'
                     self._title = attr_value.replace('{0}: '.format(self.songName), '', 1)
@@ -367,16 +482,30 @@ class Song(object):
         quality = self.pandora.audio_quality
         try:
             q = self.audioUrlMap[quality]
+            self.bitrate = q['bitrate']
             logging.info("Using audio quality %s: %s %s", quality, q['bitrate'], q['encoding'])
             return q['audioUrl']
         except KeyError:
-            logging.warn("Unable to use audio format %s. Using %s",
+            logging.warning("Unable to use audio format %s. Using %s",
                            quality, list(self.audioUrlMap.keys())[0])
+            self.bitrate = list(self.audioUrlMap.values())[0]['bitrate']
             return list(self.audioUrlMap.values())[0]['audioUrl']
 
     @property
     def station(self):
         return self.pandora.get_station_by_id(self.stationId)
+
+    def get_duration_sec (self):
+      if self.duration is not None:
+        return self.duration / 1000000000
+      else:
+        return self.trackLength
+
+    def get_position_sec (self):
+      if self.position is not None:
+        return self.position / 1000000000
+      else:
+        return 0
 
     def rate(self, rating):
         if self.rating != rating:
@@ -410,7 +539,9 @@ class Song(object):
         return self.rating
 
     def is_still_valid(self):
-        return (time.time() - self.playlist_time) < PLAYLIST_VALIDITY_TIME
+        # Playlists are valid for 1 hour. A song is considered valid if there is enough time
+        # to play the remaining duration of the song before the playlist expires.
+        return ((time.time() + (self.get_duration_sec() - self.get_position_sec())) - self.playlist_time) < PLAYLIST_VALIDITY_TIME
 
     def __repr__(self):
         return '<{}.{} {} "{}" by "{}" from "{}">'.format(
@@ -423,7 +554,7 @@ class Song(object):
         )
 
 
-class SearchResult(object):
+class SearchResult:
     def __init__(self, resultType, d):
         self.resultType = resultType
         self.score = d['score']
@@ -434,4 +565,6 @@ class SearchResult(object):
             self.artist = d['artistName']
         elif resultType == 'artist':
             self.name = d['artistName']
+        elif resultType == 'genre':
+            self.stationName = d['stationName']
 

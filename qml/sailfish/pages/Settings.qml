@@ -27,11 +27,11 @@ Dialog {
 
     onAccepted: {
         py.call('pyrrha.save_configuration', [ {'account': {'email': emailField.text,
-                                                      'password': passwordField.text,
-                                                      'pandora_one': subscriberSwitch.checked},
-                                                  'audio': {'quality': audioQuality.currentItem.text.toLowerCase() + 'Quality'},
-                                                  'proxy': {'global_url': proxyURL.text,
-                                                      'control_url': controlProxyURL.text}} ])
+                                                            'password': passwordField.text,
+                                                            'pandora_one': subscriberSwitch.checked},
+                                                'audio': {'quality': audioQuality.currentItem.text.toLowerCase() + 'Quality'},
+                                                'proxy': {'global_url': proxyURL.text,
+                                                          'control_url': proxyURL.text}} ])
     }
 
     Component.onCompleted: {
@@ -119,9 +119,9 @@ Dialog {
                 label: qsTr("Audio Quality")
                 menu: ContextMenu {
                     id: audioQualityMenu
-                    MenuItem { text: "Low"; }
-                    MenuItem { text: "Medium"; }
-                    MenuItem { text: "High"; }
+                    MenuItem { text: qsTr("Low"); }
+                    MenuItem { text: qsTr("Medium"); }
+                    MenuItem { text: qsTr("High"); }
                 }
                 currentIndex: pandoraSession.settings['audio']['quality'] === 'lowQuality' ? 0
                                   : pandoraSession.settings['audio']['quality'] === 'mediumQuality' ? 1 : 2
@@ -137,23 +137,11 @@ Dialog {
                 placeholderText: qsTr("Enter proxy URL")
                 inputMethodHints: Qt.ImhUrlCharactersOnly
                 EnterKey.enabled: text.length > 0
-                EnterKey.iconSource: "image://theme/icon-m-enter-next"
-                EnterKey.onClicked: controlProxyURL.focus = true
-
-                label: qsTr("Proxy URL")
-                text: pandoraSession.settings['proxy']['global_url']
-            }
-
-            TextField {
-                id: controlProxyURL
-                width: parent.width
-                placeholderText: qsTr("Enter control proxy URL")
-                inputMethodHints: Qt.ImhUrlCharactersOnly
                 EnterKey.iconSource: "image://theme/icon-m-enter-close"
                 EnterKey.onClicked: focus = false
 
-                label: qsTr("Control Proxy URL")
-                text: pandoraSession.settings['proxy']['control_url']
+                label: qsTr("Proxy URL")
+                text: pandoraSession.settings['proxy']['global_url']
             }
         }
     }

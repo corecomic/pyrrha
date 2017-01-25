@@ -19,6 +19,9 @@
 
 import QtQuick 2.0
 import Sailfish.Silica 1.0
+import org.nemomobile.notifications 1.0
+import Sailfish.Media 1.0
+import org.nemomobile.policy 1.0
 
 import "sailfish/pages"
 
@@ -29,6 +32,8 @@ ApplicationWindow
 
     initialPage: Component { Main { id: mainPage } }
     cover: Qt.resolvedUrl("sailfish/cover/CoverPage.qml")
+
+    property bool grabKeys: keysResource.acquired
 
     property bool showFullControls: false
     onShowFullControlsChanged: {
@@ -56,9 +61,69 @@ ApplicationWindow
         id: player
     }
 
+    MprisControls {
+        id: mprisPlayer
+    }
+
     Session {
         id: pandoraSession
     }
+
+    Notification {
+        id: notification
+        appName: "Pyrrha"
+        summary: ""
+        previewSummary: summary
+        expireTimeout: 1
+    }
+
+    Permissions {
+        enabled: true
+        applicationClass: "player"
+
+        Resource {
+            id: keysResource
+            type: Resource.HeadsetButtons
+            optional: true
+        }
+    }
+
+    MediaKey {
+        enabled: grabKeys
+        key: Qt.Key_MediaTogglePlayPause
+        onReleased: player.togglePause()
+    }
+
+    MediaKey {
+        enabled: grabKeys
+        key: Qt.Key_MediaPlay
+        onReleased: player.togglePause()
+    }
+
+    MediaKey {
+        enabled: grabKeys
+        key: Qt.Key_MediaPause
+        onReleased: player.togglePause()
+    }
+
+    MediaKey {
+        enabled: grabKeys
+        key: Qt.Key_MediaStop
+        onReleased: player.stop()
+    }
+
+    MediaKey {
+        enabled: grabKeys
+        key: Qt.Key_MediaNext
+        onReleased: player.playNext()
+    }
+
+    MediaKey {
+        enabled: grabKeys
+        key: Qt.Key_ToggleCallHangup
+        onReleased: player.togglePause()
+    }
+
 }
 
 

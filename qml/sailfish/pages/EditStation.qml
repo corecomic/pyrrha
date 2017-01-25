@@ -18,30 +18,31 @@
  */
 
 import QtQuick 2.0
+import Sailfish.Silica 1.0
 
+Dialog {
+    id: dialog
 
-ListModel{
-    id: songModel
+    property string old_name: ''
+    property string new_name
 
-    function loadSongs(doStart) {
-        doStart = typeof doStart !== 'undefined' ? doStart : false;
+    Column {
+        width: parent.width
 
-        py.call('pyrrha.get_playlist', [], function() {
-            readList();
-        })
+        DialogHeader { }
+
+        TextField {
+            id: nameField
+            width: parent.width
+            placeholderText: qsTr("Station name")
+            label: qsTr("Name")
+            text: old_name
+        }
     }
 
-    function readList() {
-        py.call('pyrrha.get_song_list', [], function(result) {
-            songModel.clear();
-            for (var i=0; i<result.length; i++) {
-                songModel.append(result[i]);
-            }
-            player.songListUpdated();
-        })
-    }
-
-    function hasSongs() {
-        return songModel.count > 0
+    onDone: {
+        if (result == DialogResult.Accepted) {
+            py.call('pyrrha.rename_station', [dialog.old_name, nameField.text], function(result) {});
+        }
     }
 }

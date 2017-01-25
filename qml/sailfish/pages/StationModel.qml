@@ -48,4 +48,13 @@ ListModel{
         if (!quickControls.open)
             quickControls.open = true
     }
+
+    function deleteStation(stationName) {
+        py.call('pyrrha.delete_station', [stationName], function(result) {});
+    }
+
+    function renameStation(stationName, newName) {
+        console.log('Rename from ' + stationName + ' to ' + newName)
+        py.call('pyrrha.rename_station', [stationName, newName], function(result) {});
+    }
 }

@@ -47,6 +47,8 @@ ListItem {
             MenuItem {
                 text: qsTr("Edit")
                 onClicked: {
+                    var dialog = pageStack.push(Qt.resolvedUrl("EditStation.qml"),
+                                                {old_name: stationListModel.get(index).name})
                 }
             }
 
@@ -63,7 +65,12 @@ ListItem {
     }
 
     function remove() {
+        if(isCurrentlyPlaying){
+            player.stop()
+        }
+
         remorseAction(qsTr("Deleting"), function() {
+            stationListModel.deleteStation(stationListModel.get(index).name)
         });
     }
 }

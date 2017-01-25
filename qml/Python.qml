@@ -18,7 +18,7 @@
  */
 
 import QtQuick 2.0
-import io.thp.pyotherside 1.3
+import io.thp.pyotherside 1.4
 
 
 Python {
@@ -31,10 +31,12 @@ Python {
     property string version
 
     signal connected()
+    signal stationsChanged()
 
     Component.onCompleted: {
         // Configure Signal Handlers for PyOtherSide
         setHandler('connected', connected);
+        setHandler('stationlist_changed', stationsChanged);
         setHandler('hello', function(version) {
             py.version = version;
         });

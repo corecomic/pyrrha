@@ -29,6 +29,7 @@ Page {
     Connections {
         target: py
         onConnected: stationListModel.loadStations();
+        onStationsChanged: stationListModel.loadStations();
     }
 
     // To enable PullDownMenu, place our content in a SilicaFlickable
@@ -49,6 +50,11 @@ Page {
                 onClicked: pageStack.push(Qt.resolvedUrl("Settings.qml"))
             }
             MenuItem {
+                text: qsTr("Add station")
+                onClicked: pageStack.push(Qt.resolvedUrl("AddStation.qml"))
+            }
+            /*
+            MenuItem {
                 text: qsTr("Refresh")
                 onClicked: {
                     pandoraSession.isLoading = true
@@ -57,6 +63,7 @@ Page {
                     stationListModel.loadStations()
                 }
             }
+            */
         }
 
         header: PageHeader {

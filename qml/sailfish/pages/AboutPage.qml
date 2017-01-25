@@ -69,7 +69,7 @@ Page {
                     width: parent.width
                     wrapMode: Text.WordWrap
                     text: [
-                        'Copyright © 2014 Core Comic',
+                        'Copyright © 2017 Core Comic',
                         'Licensed under GNU GPLv3+',
                         '',
                         'Pandora Python library by Kevin Mehall and Christopher Eby from Pithos (http://pithos.github.io)',
