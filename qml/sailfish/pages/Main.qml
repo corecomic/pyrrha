@@ -53,7 +53,7 @@ Page {
                 text: qsTr("Add station")
                 onClicked: pageStack.push(Qt.resolvedUrl("AddStation.qml"))
             }
-            /*
+
             MenuItem {
                 text: qsTr("Refresh")
                 onClicked: {
@@ -63,7 +63,7 @@ Page {
                     stationListModel.loadStations()
                 }
             }
-            */
+
         }
 
         header: PageHeader {

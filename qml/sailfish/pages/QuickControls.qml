@@ -94,7 +94,10 @@ DockedPanel {
                         icon.source: "image://theme/icon-s-like?" + (player.song && player.song.rating === 'love'
                                                                      ? Theme.highlightColor
                                                                      : Theme.primaryColor)
-                        onClicked: player.loveSong()
+                        onClicked: {
+                            pressEffect.play()
+                            player.loveSong()
+                        }
                     }
 
                     IconButton {
@@ -102,7 +105,10 @@ DockedPanel {
                         anchors.verticalCenter: parent.verticalCenter
                         icon.source: "image://theme/icon-s-like"
                         icon.rotation: 180
-                        onClicked: player.banSong()
+                        onClicked: {
+                            pressEffect.play()
+                            player.banSong()
+                        }
                     }
 
                     IconButton {

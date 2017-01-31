@@ -49,7 +49,7 @@ from pandora.data import *
 logging.basicConfig(level=logging.INFO)
 
 
-class PithosMobile(object):
+class Pyrrha(object):
     def __init__(self):
         # Initialize Config File for Settings
         self.config = configparser.ConfigParser()
@@ -88,7 +88,7 @@ class PithosMobile(object):
     def init(self):
         pyotherside.send('hello', __version__)
         pyotherside.send('config-changed')
-        logging.info("PithosMobile initialized...")
+        logging.info("Pyrrha initialized...")
 
     def read_configuration(self):
         """ Read configuration file """
@@ -138,7 +138,7 @@ class PithosMobile(object):
         return None
 
     def set_proxy(self):
-        # proxy preference is used for all Pithos HTTP traffic
+        # proxy preference is used for all Pyrrha HTTP traffic
         # control proxy preference is used only for Pandora traffic and
         # overrides proxy
         #
@@ -356,7 +356,7 @@ class PithosMobile(object):
 
 
 
-pyrrha = PithosMobile()
+pyrrha = Pyrrha()
 
 #pyotherside.atexit(pyrrha.exit)
 
