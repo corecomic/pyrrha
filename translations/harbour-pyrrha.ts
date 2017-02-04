@@ -9,6 +9,28 @@
     </message>
 </context>
 <context>
+    <name>AddStation</name>
+    <message>
+        <source>Add station</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Search</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>EditStation</name>
+    <message>
+        <source>Station name</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Name</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>FullControls</name>
     <message>
         <source>Play queue</source>
@@ -39,6 +61,21 @@
     </message>
     <message>
         <source>No account configured!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Add station</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>MediaPlayback</name>
+    <message>
+        <source>This song has expired, skipping...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Skipping, you are tired of this song...</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -97,11 +134,30 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Enter control proxy URL</source>
+        <source>Low</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Control Proxy URL</source>
+        <source>Medium</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>High</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>StationDelegate</name>
+    <message>
+        <source>Edit</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Remove</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Deleting</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
