@@ -51,6 +51,7 @@ Page {
             }
             MenuItem {
                 text: qsTr("Add station")
+                visible: pandoraSession.isConnected
                 onClicked: pageStack.push(Qt.resolvedUrl("AddStation.qml"))
             }
 

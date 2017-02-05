@@ -41,6 +41,10 @@ TARGET=%{buildroot}/%{_datadir}/icons/hicolor/
 mkdir -p $TARGET
 cp -rpv icons/* $TARGET/
 
++desktop-file-install --delete-original \
++  --dir %{buildroot}%{_datadir}/applications \
++   %{buildroot}%{_datadir}/applications/*.desktop
+
 
 %files
 %defattr(-,root,root,-)
