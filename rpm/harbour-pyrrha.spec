@@ -3,7 +3,7 @@
 
 Name:       harbour-pyrrha
 Summary:    A Cute Pandora Client
-Version:    0.3
+Version:    0.4
 Release:    1
 Group:      Applications/Multimedia
 License:    GPLv3
@@ -51,6 +51,9 @@ cp -rpv icons/* $TARGET/
 %changelog
 # * date Author's Name <author's email> version-release
 # - Summary of changes
+* Sun Feb 05 2017 Core Comic <core.comic@gmail.com> 0.4-1
+- Add translation support, German and Dutch translations
+
 * Tue Jan 31 2017 Core Comic <core.comic@gmail.com> 0.3-1
 - Add refresh option to pulldown menu
 - Add haptic feedback for thumb up/down actions
