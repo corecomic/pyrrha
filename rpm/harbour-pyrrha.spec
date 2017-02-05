@@ -31,21 +31,22 @@ TARGET=%{buildroot}/%{_datadir}/%{name}
 mkdir -p $TARGET
 cp -rpv pyrrha* $TARGET/
 cp -rpv qml $TARGET/
+cp -rpv --parents translations/*.qm $TARGET/
 
 TARGET=%{buildroot}/%{_datadir}/applications
 mkdir -p $TARGET
 cp -rpv %{name}.desktop $TARGET/
 
-TARGET=%{buildroot}/%{_datadir}/icons/hicolor/86x86/apps/
+TARGET=%{buildroot}/%{_datadir}/icons/hicolor/
 mkdir -p $TARGET
-cp -rpv %{name}.png $TARGET/
+cp -rpv icons/* $TARGET/
 
 
 %files
 %defattr(-,root,root,-)
 %{_datadir}/%{name}
 %{_datadir}/applications/%{name}.desktop
-%{_datadir}/icons/hicolor/86x86/apps/%{name}.png
+%{_datadir}/icons/hicolor/*/apps/%{name}.png
 
 %changelog
 # * date Author's Name <author's email> version-release

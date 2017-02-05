@@ -54,7 +54,7 @@ Page {
 
                 Column {
                     Label {
-                        text: 'Pyrrha ' // + py.uiversion
+                        text: 'Pyrrha '
                         color: Theme.highlightColor
                     }
 
