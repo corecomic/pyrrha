@@ -18,7 +18,7 @@
  */
 
 import QtQuick 2.0
-import QtMultimedia 5.4
+import QtMultimedia 5.0
 
 Audio {
     id: player
@@ -147,7 +147,7 @@ Audio {
     }
 
     onPlaybackStateChanged: {
-        mprisPlayer.updatePlaybackStatus(); //MPRIS
+        //mprisPlayer.updatePlaybackStatus(); //MPRIS
     }
 
     onSongListUpdated: {
@@ -161,7 +161,7 @@ Audio {
         if (status === MediaPlayer.EndOfMedia) {
             playNext()
         }
-        mprisPlayer.updateMprisMetadata(); //MPRIS
+        //mprisPlayer.updateMprisMetadata(); //MPRIS
     }
 
     onError: {

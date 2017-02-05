@@ -95,7 +95,7 @@ DockedPanel {
                                                                      ? Theme.highlightColor
                                                                      : Theme.primaryColor)
                         onClicked: {
-                            pressEffect.play()
+                            //pressEffect.play()  //FEEDBACK
                             player.loveSong()
                         }
                     }
@@ -106,7 +106,7 @@ DockedPanel {
                         icon.source: "image://theme/icon-s-like"
                         icon.rotation: 180
                         onClicked: {
-                            pressEffect.play()
+                            //pressEffect.play()  //FEEDBACK
                             player.banSong()
                         }
                     }

@@ -4,7 +4,7 @@
 Name:       harbour-pyrrha
 Summary:    A Cute Pandora Client
 Version:    0.4
-Release:    1
+Release:    0
 Group:      Applications/Multimedia
 License:    GPLv3
 URL:        https://github.com/corecomic/pyrrha
@@ -41,6 +41,9 @@ TARGET=%{buildroot}/%{_datadir}/icons/hicolor/
 mkdir -p $TARGET
 cp -rpv icons/* $TARGET/
 
+desktop-file-install --delete-original \
+  --dir %{buildroot}%{_datadir}/applications \
+   %{buildroot}%{_datadir}/applications/*.desktop
 
 %files
 %defattr(-,root,root,-)

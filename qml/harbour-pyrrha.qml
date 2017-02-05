@@ -19,10 +19,9 @@
 
 import QtQuick 2.0
 import Sailfish.Silica 1.0
-import QtFeedback 5.0
+
 import org.nemomobile.notifications 1.0
-import Sailfish.Media 1.0
-import org.nemomobile.policy 1.0
+
 
 import "sailfish/pages"
 
@@ -62,18 +61,10 @@ ApplicationWindow
         id: player
     }
 
-    MprisControls {
-        id: mprisPlayer
-    }
-
     Session {
         id: pandoraSession
     }
 
-    ThemeEffect {
-        id: pressEffect
-        effect: "Press"
-    }
 
     Notification {
         id: notification
@@ -81,53 +72,6 @@ ApplicationWindow
         summary: ""
         previewSummary: summary
         expireTimeout: 1
-    }
-
-    Permissions {
-        enabled: true
-        applicationClass: "player"
-
-        Resource {
-            id: keysResource
-            type: Resource.HeadsetButtons
-            optional: true
-        }
-    }
-
-    MediaKey {
-        enabled: grabKeys
-        key: Qt.Key_MediaTogglePlayPause
-        onReleased: player.togglePause()
-    }
-
-    MediaKey {
-        enabled: grabKeys
-        key: Qt.Key_MediaPlay
-        onReleased: player.togglePause()
-    }
-
-    MediaKey {
-        enabled: grabKeys
-        key: Qt.Key_MediaPause
-        onReleased: player.togglePause()
-    }
-
-    MediaKey {
-        enabled: grabKeys
-        key: Qt.Key_MediaStop
-        onReleased: player.stop()
-    }
-
-    MediaKey {
-        enabled: grabKeys
-        key: Qt.Key_MediaNext
-        onReleased: player.playNext()
-    }
-
-    MediaKey {
-        enabled: grabKeys
-        key: Qt.Key_ToggleCallHangup
-        onReleased: player.togglePause()
     }
 
 }

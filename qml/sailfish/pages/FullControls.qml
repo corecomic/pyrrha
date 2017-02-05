@@ -334,7 +334,7 @@ Page {
                                                                  ? Theme.highlightColor
                                                                  : Theme.primaryColor)
                     onClicked: {
-                        pressEffect.play()
+                        //pressEffect.play()  //FEEDBACK
                         player.loveSong()
                     }
                 }
@@ -344,7 +344,7 @@ Page {
                     icon.source: "image://theme/icon-m-like"
                     icon.rotation: 180
                     onClicked: {
-                        pressEffect.play()
+                        //pressEffect.play()  //FEEDBACK
                         player.banSong()
                     }
                 }
