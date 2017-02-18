@@ -4,7 +4,7 @@
 
 Name:       harbour-pyrrha
 Summary:    A Cute Pandora Client
-Version:    0.4
+Version:    0.5
 Release:    1
 Group:      Applications/Multimedia
 License:    GPLv3
@@ -56,6 +56,9 @@ desktop-file-install --delete-original \
 %changelog
 # * date Author's Name <author's email> version-release
 # - Summary of changes
+* Sat Feb 18 2017 Core Comic <core.comic@gmail.com> 0.5-1
+- Updated translations, add Russian translation
+
 * Sun Feb 05 2017 Core Comic <core.comic@gmail.com> 0.4-1
 - Add translation support, German and Dutch translations
 
