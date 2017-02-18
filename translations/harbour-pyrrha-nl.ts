@@ -12,22 +12,22 @@
     <name>AddStation</name>
     <message>
         <source>Add station</source>
-        <translation type="unfinished"></translation>
+        <translation>Zender toevoegen</translation>
     </message>
     <message>
         <source>Search</source>
-        <translation type="unfinished"></translation>
+        <translation>Zoeken</translation>
     </message>
 </context>
 <context>
     <name>EditStation</name>
     <message>
         <source>Station name</source>
-        <translation type="unfinished"></translation>
+        <translation>Naam zender</translation>
     </message>
     <message>
         <source>Name</source>
-        <translation type="unfinished"></translation>
+        <translation>Naam</translation>
     </message>
 </context>
 <context>
@@ -65,18 +65,18 @@
     </message>
     <message>
         <source>Add station</source>
-        <translation type="unfinished"></translation>
+        <translation>Zender toevoegen</translation>
     </message>
 </context>
 <context>
     <name>MediaPlayback</name>
     <message>
         <source>This song has expired, skipping...</source>
-        <translation type="unfinished"></translation>
+        <translation>Dit nummer is verlopen en wordt overgeslagen...</translation>
     </message>
     <message>
         <source>Skipping, you are tired of this song...</source>
-        <translation type="unfinished"></translation>
+        <translation>Dit nummer wordt overgeslagen want je bent het beu...</translation>
     </message>
 </context>
 <context>
@@ -135,38 +135,38 @@
     </message>
     <message>
         <source>Enter control proxy URL</source>
-        <translation type="vanished">Voer controleproxy-URL in</translation>
+        <translation>Voer controleproxy-URL in</translation>
     </message>
     <message>
         <source>Control Proxy URL</source>
-        <translation type="vanished">Controleproxy-URL</translation>
+        <translation>Controleproxy-URL</translation>
     </message>
     <message>
         <source>Low</source>
-        <translation type="unfinished"></translation>
+        <translation>Laag</translation>
     </message>
     <message>
         <source>Medium</source>
-        <translation type="unfinished"></translation>
+        <translation>Gemiddeld</translation>
     </message>
     <message>
         <source>High</source>
-        <translation type="unfinished"></translation>
+        <translation>Hoog</translation>
     </message>
 </context>
 <context>
     <name>StationDelegate</name>
     <message>
         <source>Edit</source>
-        <translation type="unfinished"></translation>
+        <translation>Bewerken</translation>
     </message>
     <message>
         <source>Remove</source>
-        <translation type="unfinished"></translation>
+        <translation>Verwijderen</translation>
     </message>
     <message>
         <source>Deleting</source>
-        <translation type="unfinished"></translation>
+        <translation>Wordt verwijderd</translation>
     </message>
 </context>
 </TS>
