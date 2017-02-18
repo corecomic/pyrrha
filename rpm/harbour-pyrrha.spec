@@ -1,5 +1,6 @@
 # Prevent brp-python-bytecompile from running
 %define __os_install_post %{___build_post}
+%define __provides_exclude_from ^%{_datadir}/.*$
 
 Name:       harbour-pyrrha
 Summary:    A Cute Pandora Client
@@ -44,6 +45,7 @@ cp -rpv icons/* $TARGET/
 desktop-file-install --delete-original \
   --dir %{buildroot}%{_datadir}/applications \
    %{buildroot}%{_datadir}/applications/*.desktop
+
 
 %files
 %defattr(-,root,root,-)
