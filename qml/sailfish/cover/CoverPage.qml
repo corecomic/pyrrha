@@ -60,7 +60,7 @@ CoverBackground {
 
     CoverActionList {
         id: coverActionPlaying
-        enabled: pandoraSession.isConnected && player.song
+        enabled: pandoraSession.isConnected && (typeof player.song !== 'undefined')
 
         CoverAction {
             iconSource: player.isPlaying ? "image://theme/icon-cover-pause"

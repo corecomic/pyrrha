@@ -153,7 +153,11 @@ Audio {
     onSongListUpdated: {
         console.log('SongList Updated...');
         song = songList.get(songIndex);
-        playbackSong(song.audioURL);
+        if (typeof song !== 'undefined'){
+            playbackSong(song.audioURL);
+        } else {
+            player.stop();
+        }
     }
 
     onStatusChanged: {

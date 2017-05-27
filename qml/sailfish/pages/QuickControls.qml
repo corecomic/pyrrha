@@ -132,7 +132,7 @@ DockedPanel {
                     height: quickControls.height/3
                     maximumValue: player.duration
                     minimumValue: 0
-                    indeterminate: player.bufferProgress !== 1
+                    indeterminate: player.bufferProgress !== 1 && (typeof player.song !== 'undefined')
                     value: player.position
                 }
             }
