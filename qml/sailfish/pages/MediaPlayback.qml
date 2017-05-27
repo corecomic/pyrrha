@@ -18,7 +18,7 @@
  */
 
 import QtQuick 2.0
-import QtMultimedia 5.0
+import QtMultimedia 5.4
 
 Audio {
     id: player
@@ -153,7 +153,11 @@ Audio {
     onSongListUpdated: {
         console.log('SongList Updated...');
         song = songList.get(songIndex);
-        playbackSong(song.audioURL);
+        if (typeof song !== 'undefined'){
+            playbackSong(song.audioURL);
+        } else {
+            player.stop();
+        }
     }
 
     onStatusChanged: {

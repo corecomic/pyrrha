@@ -1,39 +1,34 @@
 # -*- coding: utf-8 -*-
-### BEGIN LICENSE
-#Copyright (C) 2015 Core Comic <core.comic@gmail.com>
-
-#This program is free software: you can redistribute it and/or modify
-#it under the terms of the GNU General Public License as published by
-#the Free Software Foundation, either version 3 of the License, or
-#(at your option) any later version.
-
-#This program is distributed in the hope that it will be useful,
-#but WITHOUT ANY WARRANTY; without even the implied warranty of
-#MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#GNU General Public License for more details.
-
-#You should have received a copy of the GNU General Public License
-#along with this program.  If not, see <http://www.gnu.org/licenses/>.
-### END LICENSE
+# BEGIN LICENSE
+# Copyright (C) 2015 Core Comic <core.comic@gmail.com>
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+# END LICENSE
 
 
 """
-Python wrapper file for pyrrha using PyOtherSide
+Python wrapper file for Pyrrha using PyOtherSide
 
 """
 
-__version__ = "0.4.0"
-
-
-import sys
 import os
 import logging
-import urllib.request, urllib.error, urllib.parse
+import urllib.request
+import urllib.error
+import urllib.parse
 
 try:
     import configparser
-except Exception as exp:
-    pass
+except ImportError:
+    print("configparser not found, continuing anyway!")
 
 try:
     import pyotherside
@@ -44,6 +39,8 @@ except ImportError:
 from pandora import *
 from pandora.data import *
 
+
+__version__ = "0.6.0"
 
 # FOR TESTING
 logging.basicConfig(level=logging.INFO)
@@ -84,7 +81,6 @@ class Pyrrha(object):
         self.set_proxy()
         self.set_audio_quality()
 
-
     def init(self):
         pyotherside.send('hello', __version__)
         pyotherside.send('config-changed')
@@ -94,8 +90,8 @@ class Pyrrha(object):
         """ Read configuration file """
         try:
             self.config.read(self.config_file)
-        except Exception as exp:
-            print(exp)
+        except Exception as e:
+            print(e)
             return False
         return True
 
@@ -119,7 +115,7 @@ class Pyrrha(object):
         if not self.read_configuration():
             return
         self.config.read_dict(configuration)
-        with open(self.config_file,'w') as config_f:
+        with open(self.config_file, 'w') as config_f:
             self.config.write(config_f)
         self.set_proxy()
         self.set_audio_quality()
@@ -155,7 +151,8 @@ class Pyrrha(object):
         control_opener = global_opener
         control_proxy = self.config['proxy'].get('control_url', '')
         if control_proxy:
-            control_opener = urllib.request.build_opener(urllib.request.ProxyHandler({'http': control_proxy, 'https': control_proxy}))
+            control_opener = urllib.request.build_opener(urllib.request.ProxyHandler({'http': control_proxy,
+                                                                                      'https': control_proxy}))
 
         self.pandora.set_url_opener(control_opener)
 
@@ -163,7 +160,7 @@ class Pyrrha(object):
         self.pandora.set_audio_quality(self.config['audio'].get('quality', 'mediumQuality'))
 
     def error_callback(self, e):
-        if isinstance(e, PandoraAuthTokenInvalid): # and not self.auto_retrying_auth:
+        if isinstance(e, PandoraAuthTokenInvalid):  # and not self.auto_retrying_auth:
             logging.info("Automatic reconnect after invalid auth token")
             self.pandora_connect()
         elif isinstance(e, PandoraAPIVersionError):
@@ -175,10 +172,10 @@ class Pyrrha(object):
             logging.error(e.submsg)
             pyotherside.send('connection-error', str(e.submsg))
         else:
-            logging.warn(e.traceback)
+            logging.warning(e.traceback)
             pyotherside.send('connection-error', str(e))
 
-    def pandora_connect(self, callback=None):
+    def pandora_connect(self):
         if self.config['account'].get('pandora_one') == 'True':
             client = client_keys[default_one_client_id]
         else:
@@ -189,12 +186,22 @@ class Pyrrha(object):
 
         try:
             self.pandora.connect(client, user, password)
-            pyotherside.send('connected')
-            self.process_stations()
+            if self.config['account'].get('pandora_one') != str(self.pandora.isSubscriber):
+                self.config.set('account', 'pandora_one', str(self.pandora.isSubscriber))
+                self.pandora_connect()
+            else:
+                self.pandora.get_stations()
+                pyotherside.send('connected')
+                self.process_stations()
         except Exception as e:
             self.error_callback(e)
 
     def process_stations(self):
+        # Make sure that the Thumbprint Radio Station is always 2nd.
+        for i, s in enumerate(self.pandora.stations):
+            if s.isThumbprint:
+                self.pandora.stations.insert(1, self.pandora.stations.pop(i))
+                break
         for i in self.pandora.stations:
             if i.isQuickMix and i.isCreator:
                 self.stations_model.append((i, "QuickMix"))
@@ -208,6 +215,8 @@ class Pyrrha(object):
         for item in self.stations_model:
             if item[1] == 'QuickMix':
                 stations_list.append({'name': item[1], 'section': 'mix'})
+            elif item[1] == 'Thumbprint Radio':
+                stations_list.append({'name': item[1], 'section': 'mix'})
             elif item[1] == 'sep':
                 pass
             else:
@@ -216,6 +225,7 @@ class Pyrrha(object):
         return stations_list
 
     def station_changed(self, station_name, reconnecting=False):
+        station = None
         for item in self.stations_model:
             if item[1] == station_name:
                 station = item[0]
@@ -227,17 +237,15 @@ class Pyrrha(object):
 
         self.waiting_for_playlist = False
         if not reconnecting:
-            #self.stop()
             self.current_song_index = None
             self.songs_model = []
         logging.info("Selecting station %s; total = %i" % (station.id, len(self.stations_model)))
         self.current_station = station
-        #if not reconnecting:
-        #    self.get_playlist(start = True)
         return True
 
     def get_playlist(self):
-        if self.waiting_for_playlist: return
+        if self.waiting_for_playlist:
+            return
 
         self.waiting_for_playlist = True
         try:
@@ -248,6 +256,10 @@ class Pyrrha(object):
                 self.songs_model.append((i, '', '', ''))
 
             self.waiting_for_playlist = False
+
+        except PandoraError as e:
+            logging.error(e.message)
+            pyotherside.send('pandora_error', e.message)
 
         except Exception as e:
             logging.error(e)
@@ -269,6 +281,7 @@ class Pyrrha(object):
         return song_list
 
     def love_song(self, song_url):
+        song = None
         for item in self.songs_model:
             if item[0].audioUrl == song_url:
                 song = item
@@ -279,36 +292,41 @@ class Pyrrha(object):
             rate = RATE_LOVE
         try:
             song[0].rate(rate)
-        except Exceptopion as e:
+        except Exception as e:
             logging.error(e)
 
     def ban_song(self, song_url):
+        song = None
         for item in self.songs_model:
             if item[0].audioUrl == song_url:
                 song = item
                 break
         try:
             song[0].rate(RATE_BAN)
-        except Exceptopion as e:
+        except Exception as e:
             logging.error(e)
 
     def set_tired(self, song_url):
+        song = None
         for item in self.songs_model:
             if item[0].audioUrl == song_url:
                 song = item
                 break
         try:
             song[0].set_tired()
-        except Exceptopion as e:
+        except Exception as e:
             logging.error(e)
 
     def set_finished(self, song_url):
+        song = None
         for item in self.songs_model:
             if item[0].audioUrl == song_url:
                 song = item
                 break
-        song[0].finished = True
-
+        try:
+            song[0].finished = True
+        except Exception as e:
+            logging.error(e)
 
     def search_station(self, query):
         search_list = []
@@ -316,16 +334,16 @@ class Pyrrha(object):
         for item in result:
             if item.resultType == 'song':
                 search_list.append({'type': item.resultType,
-                                  'score': item.score,
-                                  'musicId': item.musicId,
-                                  'artist': item.artist,
-                                  'title': item.title})
+                                    'score': item.score,
+                                    'musicId': item.musicId,
+                                    'artist': item.artist,
+                                    'title': item.title})
             elif item.resultType == 'artist':
                 search_list.append({'type': item.resultType,
-                                  'score': item.score,
-                                  'musicId': item.musicId,
-                                  'artist': item.name,
-                                  'title': ''})
+                                    'score': item.score,
+                                    'musicId': item.musicId,
+                                    'artist': item.name,
+                                    'title': ''})
         return search_list
 
     def add_station(self, music_id):
@@ -335,6 +353,7 @@ class Pyrrha(object):
         pyotherside.send('stationlist_changed')
 
     def delete_station(self, station_name):
+        station = None
         for item in self.stations_model:
             if item[1] == station_name:
                 station = item[0]
@@ -343,8 +362,8 @@ class Pyrrha(object):
         station.delete()
         pyotherside.send('stationlist_changed')
 
-
     def rename_station(self, station_name, new_name):
+        station = None
         for item in self.stations_model:
             if item[1] == station_name:
                 station = item[0]
@@ -379,7 +398,7 @@ rename_station = pyrrha.rename_station
 set_finished = pyrrha.set_finished
 
 
-## TESTING ##
+# TESTING #
 if __name__ == "__main__":
     print('Hi World')
     pyrrha.init()
@@ -387,5 +406,3 @@ if __name__ == "__main__":
     pyrrha.station_changed('QuickMix')
     songs = pyrrha.get_song_list()
     print(songs)
-
-

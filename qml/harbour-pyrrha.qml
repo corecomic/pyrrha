@@ -71,7 +71,7 @@ ApplicationWindow
         appName: "Pyrrha"
         summary: ""
         previewSummary: summary
-        expireTimeout: 1
+        expireTimeout: 2
     }
 
 }

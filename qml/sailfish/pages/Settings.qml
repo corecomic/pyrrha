@@ -29,7 +29,7 @@ Dialog {
         py.call('pyrrha.save_configuration', [ {'account': {'email': emailField.text,
                                                             'password': passwordField.text,
                                                             'pandora_one': subscriberSwitch.checked},
-                                                'audio': {'quality': audioQuality.currentItem.text.toLowerCase() + 'Quality'},
+                                                'audio': {'quality': audioQuality.currentItem.label + 'Quality'},
                                                 'proxy': {'global_url': proxyURL.text,
                                                           'control_url': proxyURL.text}} ])
     }
@@ -119,9 +119,9 @@ Dialog {
                 label: qsTr("Audio Quality")
                 menu: ContextMenu {
                     id: audioQualityMenu
-                    MenuItem { text: qsTr("Low"); }
-                    MenuItem { text: qsTr("Medium"); }
-                    MenuItem { text: qsTr("High"); }
+                    MenuItem { property string label: 'low'; text: qsTr("Low"); }
+                    MenuItem { property string label: 'medium'; text: qsTr("Medium"); }
+                    MenuItem { property string label: 'high'; text: qsTr("High"); }
                 }
                 currentIndex: pandoraSession.settings['audio']['quality'] === 'lowQuality' ? 0
                                   : pandoraSession.settings['audio']['quality'] === 'mediumQuality' ? 1 : 2

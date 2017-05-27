@@ -47,6 +47,10 @@ Python {
             pandoraSession.connectionError = error;
             pandoraSession.isLoading = false;
         });
+        setHandler('pandora_error', function(msg) {
+            notification.summary = msg;
+            notification.publish();
+        });
 
         // Add path for Python module
         addImportPath(Qt.resolvedUrl("../pyrrha"));
