@@ -5,160 +5,160 @@
     <name>AboutPage</name>
     <message>
         <source>About Pyrrha</source>
-        <translation type="unfinished"></translation>
+        <translation>Acerca de Pyrrha</translation>
     </message>
 </context>
 <context>
     <name>AddStation</name>
     <message>
         <source>Add station</source>
-        <translation type="unfinished"></translation>
+        <translation>Agregar estación</translation>
     </message>
     <message>
         <source>Search</source>
-        <translation type="unfinished"></translation>
+        <translation>Buscar</translation>
     </message>
 </context>
 <context>
     <name>EditStation</name>
     <message>
         <source>Station name</source>
-        <translation type="unfinished"></translation>
+        <translation>Nombre de estación</translation>
     </message>
     <message>
         <source>Name</source>
-        <translation type="unfinished"></translation>
+        <translation>Nombre</translation>
     </message>
 </context>
 <context>
     <name>FullControls</name>
     <message>
         <source>Play queue</source>
-        <translation type="unfinished"></translation>
+        <translation>Reproducir cola</translation>
     </message>
 </context>
 <context>
     <name>Main</name>
     <message>
         <source>About</source>
-        <translation type="unfinished"></translation>
+        <translation>Acerca de</translation>
     </message>
     <message>
         <source>Settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Ajustes</translation>
     </message>
     <message>
         <source>Refresh</source>
-        <translation type="unfinished"></translation>
+        <translation>Actualizar</translation>
     </message>
     <message>
         <source>Pyrrha</source>
-        <translation type="unfinished"></translation>
+        <translation>Pyrrha</translation>
     </message>
     <message>
         <source>No stations</source>
-        <translation type="unfinished"></translation>
+        <translation>Sin estaciónes</translation>
     </message>
     <message>
         <source>No account configured!</source>
-        <translation type="unfinished"></translation>
+        <translation>Ninguna cuenta configurada!</translation>
     </message>
     <message>
         <source>Add station</source>
-        <translation type="unfinished"></translation>
+        <translation>Agregar estación</translation>
     </message>
 </context>
 <context>
     <name>MediaPlayback</name>
     <message>
         <source>This song has expired, skipping...</source>
-        <translation type="unfinished"></translation>
+        <translation>Esta canción ha caducado, saltando...</translation>
     </message>
     <message>
         <source>Skipping, you are tired of this song...</source>
-        <translation type="unfinished"></translation>
+        <translation>Omitiendo, estás cansado de esta canción...</translation>
     </message>
 </context>
 <context>
     <name>Settings</name>
     <message>
         <source>Settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Ajustes</translation>
     </message>
     <message>
         <source>Save</source>
-        <translation type="unfinished"></translation>
+        <translation>Guardar</translation>
     </message>
     <message>
         <source>Account</source>
-        <translation type="unfinished"></translation>
+        <translation>Cuenta</translation>
     </message>
     <message>
         <source>Enter e-mail address</source>
-        <translation type="unfinished"></translation>
+        <translation>Introducir C-electrónico</translation>
     </message>
     <message>
         <source>E-mail</source>
-        <translation type="unfinished"></translation>
+        <translation>C-electrónico</translation>
     </message>
     <message>
         <source>Enter password</source>
-        <translation type="unfinished"></translation>
+        <translation>Introducir contraseña</translation>
     </message>
     <message>
         <source>Password</source>
-        <translation type="unfinished"></translation>
+        <translation>Contraseña</translation>
     </message>
     <message>
         <source>Pandora One Subscriber</source>
-        <translation type="unfinished"></translation>
+        <translation>Pandora un Suscriptor</translation>
     </message>
     <message>
         <source>Audio</source>
-        <translation type="unfinished"></translation>
+        <translation>Audio</translation>
     </message>
     <message>
         <source>Audio Quality</source>
-        <translation type="unfinished"></translation>
+        <translation>Calidad de audio</translation>
     </message>
     <message>
         <source>Proxy</source>
-        <translation type="unfinished"></translation>
+        <translation>Proxy</translation>
     </message>
     <message>
         <source>Enter proxy URL</source>
-        <translation type="unfinished"></translation>
+        <translation>Introducir LUR del proxy</translation>
     </message>
     <message>
         <source>Proxy URL</source>
-        <translation type="unfinished"></translation>
+        <translation>Proxy LUR</translation>
     </message>
     <message>
         <source>Low</source>
-        <translation type="unfinished"></translation>
+        <translation>Baja</translation>
     </message>
     <message>
         <source>Medium</source>
-        <translation type="unfinished"></translation>
+        <translation>Medio</translation>
     </message>
     <message>
         <source>High</source>
-        <translation type="unfinished"></translation>
+        <translation>Alto</translation>
     </message>
 </context>
 <context>
     <name>StationDelegate</name>
     <message>
         <source>Edit</source>
-        <translation type="unfinished"></translation>
+        <translation>Editar</translation>
     </message>
     <message>
         <source>Remove</source>
-        <translation type="unfinished"></translation>
+        <translation>Remover</translation>
     </message>
     <message>
         <source>Deleting</source>
-        <translation type="unfinished"></translation>
+        <translation>Borrando</translation>
     </message>
 </context>
 </TS>
